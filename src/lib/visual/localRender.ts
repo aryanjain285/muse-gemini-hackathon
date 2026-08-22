@@ -333,11 +333,9 @@ export async function buildSubjectSheet(opts: {
 }): Promise<{ path: string; width: number; height: number; tiles: number }> {
   const sources = opts.sourcePaths;
   if (sources.length === 0) throw new MuseError("permanent", "buildSubjectSheet needs at least one upload");
-  if (sources.length > LIMITS.maxUploads) {
-    throw new MuseError("permanent", `buildSubjectSheet takes at most ${LIMITS.maxUploads} uploads`, {
-      count: sources.length,
-    });
-  }
+  // No upper bound here. The sheet ranks by how usable each photograph is as an identity
+  // reference and lays out the best of them; refusing to build one because somebody brought
+  // eleven pictures was the cap leaking into a component that already knew how to choose.
 
   const probes = await pool(sources, 3, (p) => probeImage(p));
   const ranked = sources

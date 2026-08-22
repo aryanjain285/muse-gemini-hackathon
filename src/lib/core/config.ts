@@ -314,8 +314,17 @@ function num(v: string | undefined, dflt: number): number {
 
 
 export const LIMITS = {
-  /** Max uploaded reference images. */
-  maxUploads: 5,
+  /**
+   * Max uploaded reference images.
+   *
+   * Five was the number the reference renders were tuned against, and it became a rule: the
+   * upload endpoint refused a sixth photograph and preflight blocked the run. Nothing downstream
+   * actually needs the cap — the director picks what to shoot, the subject sheet ranks and takes
+   * the best few, and vision reads them all — so the limit was rejecting work the pipeline could
+   * do. Twelve is a bound rather than a rule: enough that nobody meets it by accident, low enough
+   * that one request cannot ask for fifty vision reads.
+   */
+  maxUploads: 12,
   maxUploadBytes: 12 * 1024 * 1024,
   maxAudioBytes: 20 * 1024 * 1024,
   /** Accepted upload MIME types, checked against real file signatures. */

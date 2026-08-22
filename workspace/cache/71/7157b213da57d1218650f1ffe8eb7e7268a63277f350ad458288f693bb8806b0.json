@@ -1,0 +1,1 @@
+{"json":{"scores":{"identity":0.7,"continuity":0.7,"motion":0.7,"adherence":0.6,"composition":0.6},"decision":"PASS","repair_instruction":"Maintain subtle head movement without shifting camera distance.","reason":"Adherence is slightly degraded due to minimal dynamic camera whip movement relative to the prompt."},"hasBin":false,"createdAt":"2026-08-22T03:00:54.009Z"}
