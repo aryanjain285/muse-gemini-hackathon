@@ -1,0 +1,56 @@
+{
+  "name": "muse",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MUSE — AI Music Video Director. Gemini plans a shared timeline; a deterministic composer lands every cut.",
+  "scripts": {
+    "dev": "next dev -p 3939",
+    "build": "next build",
+    "start": "next start -p 3939",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "db:reset": "tsx scripts/db-reset.ts",
+    "probe": "tsx scripts/probe-capabilities.ts",
+    "verify": "tsx scripts/verify-e2e.ts",
+    "verify:agent": "tsx scripts/verify-e2e.ts --agent",
+    "verify:track": "tsx scripts/verify-e2e.ts --track",
+    "verify:all": "npm run verify && npm run verify:agent && npm run verify:track",
+    "smoke:real": "tsx scripts/smoke-real.ts",
+    "doctor": "tsx scripts/doctor.ts",
+    "setup": "tsx scripts/restore-demo.ts && tsx scripts/seed-memories.ts",
+    "demo:restore": "tsx scripts/restore-demo.ts",
+    "demo:seed": "tsx scripts/seed-memories.ts",
+    "demo:bundle": "tsx scripts/bundle-demo.ts",
+    "portable": "tsx scripts/make-portable.ts"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.2.0",
+    "next": "15.5.23",
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.13",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^22.18.1",
+    "@types/react": "^19.1.13",
+    "@types/react-dom": "^19.1.9",
+    "tailwindcss": "^4.1.13",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aryanjain285/muse.git"
+  },
+  "homepage": "https://github.com/aryanjain285/muse#readme",
+  "author": "Aryan Jain",
+  "bugs": {
+    "url": "https://github.com/aryanjain285/muse/issues"
+  }
+}

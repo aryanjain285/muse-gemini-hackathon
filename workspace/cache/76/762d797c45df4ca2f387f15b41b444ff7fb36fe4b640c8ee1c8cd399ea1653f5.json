@@ -1,0 +1,1 @@
+{"json":{"scores":{"identity":0.65,"continuity":0.68,"motion":0.62,"adherence":0.64,"composition":0.66},"decision":"PASS","repair_instruction":"Remove the printed text logo from the back of the hoodie.","reason":"Motion and sudden rotation introduce minor inconsistency across frames."},"hasBin":false,"createdAt":"2026-08-19T15:37:39.914Z"}

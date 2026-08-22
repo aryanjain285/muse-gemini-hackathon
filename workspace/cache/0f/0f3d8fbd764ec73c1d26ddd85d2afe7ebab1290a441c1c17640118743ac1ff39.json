@@ -1,0 +1,1 @@
+{"json":{"scores":{"identity":0.95,"continuity":0.95,"motion":0.9,"adherence":0.6,"composition":0.85},"decision":"RETRY","repair_instruction":"Zoom out to a full shot showing the young man head-to-toe with space on all sides.","reason":"The shot size is a medium shot instead of the requested full shot showing head-to-toe."},"hasBin":false,"createdAt":"2026-08-19T05:03:54.467Z"}

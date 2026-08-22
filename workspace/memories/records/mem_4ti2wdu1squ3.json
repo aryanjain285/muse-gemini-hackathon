@@ -1,0 +1,47 @@
+{
+  "id": "mem_4ti2wdu1squ3",
+  "mediaFile": "media/mem_4ti2wdu1squ3.jpg",
+  "mime": "image/jpeg",
+  "bytes": 611362,
+  "sha256": "40f709152c452600dc32dcc7577c845ecff8e78f88328cd3b436f6cf8075cdb3",
+  "originalName": "upload_image-IMG_9969-40f709152c.jpg",
+  "capturedAt": null,
+  "userNote": "Last morning before the drive back down.",
+  "context": "winter family trip to Gangtok, Sikkim",
+  "importance": 0.7,
+  "createdAt": "2026-08-22T01:01:50.428Z",
+  "updatedAt": "2026-08-22T01:01:50.428Z",
+  "provenance": {
+    "observedBy": "local",
+    "modelRoute": "local"
+  },
+  "title": "The last morning",
+  "description": "a hillside town in early light, low buildings stacked along the contour with terraced ground below and mountains standing behind the roofline",
+  "people": [],
+  "setting": "a hill town in the early morning, terraces below the houses",
+  "location": "Gangtok, Sikkim",
+  "event": "winter family trip",
+  "activities": [
+    "leaving",
+    "looking back at the town"
+  ],
+  "objects": [
+    "hillside houses",
+    "terraced fields",
+    "mountain ridge"
+  ],
+  "mood": [
+    "ending",
+    "soft",
+    "early"
+  ],
+  "tags": [
+    "town",
+    "morning",
+    "hills",
+    "terraces",
+    "winter",
+    "sikkim"
+  ],
+  "visualQuality": 0.85
+}

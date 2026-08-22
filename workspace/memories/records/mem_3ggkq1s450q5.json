@@ -1,0 +1,45 @@
+{
+  "id": "mem_3ggkq1s450q5",
+  "mediaFile": "media/mem_3ggkq1s450q5.jpg",
+  "mime": "image/jpeg",
+  "bytes": 1372151,
+  "sha256": "ec414879d31f7a1530bcb6ef79bec8238beff0750e2a65167df4023c5720ba44",
+  "originalName": "upload_image-02C48E4D-D054-43D0-A6A4--ec414879d3.jpg",
+  "capturedAt": null,
+  "userNote": "Somewhere on the road up. I do not remember stopping here.",
+  "context": "winter family trip to Gangtok, Sikkim",
+  "importance": 0.7,
+  "createdAt": "2026-08-22T01:01:50.434Z",
+  "updatedAt": "2026-08-22T01:01:50.434Z",
+  "provenance": {
+    "observedBy": "local",
+    "modelRoute": "local"
+  },
+  "title": "A stop on the way up",
+  "description": "a moment from the drive into the hills, road and slope and winter scrub, the light flat under cloud",
+  "people": [],
+  "setting": "the road up into the hills, winter scrub on the verge",
+  "location": "Sikkim",
+  "event": "winter family trip",
+  "activities": [
+    "driving up",
+    "stopping on the way"
+  ],
+  "objects": [
+    "hill road",
+    "winter scrub",
+    "cloud"
+  ],
+  "mood": [
+    "in transit",
+    "overcast"
+  ],
+  "tags": [
+    "road",
+    "drive",
+    "hills",
+    "winter",
+    "sikkim"
+  ],
+  "visualQuality": 0.72
+}

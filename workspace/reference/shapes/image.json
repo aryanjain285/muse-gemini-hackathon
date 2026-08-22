@@ -1,0 +1,62 @@
+{
+  "request": {
+    "contents": [
+      {
+        "parts": [
+          {
+            "text": "[str 519b]"
+          }
+        ]
+      }
+    ],
+    "generationConfig": {
+      "responseModalities": [
+        "IMAGE"
+      ],
+      "imageConfig": {
+        "aspectRatio": "9:16",
+        "imageSize": "1K"
+      }
+    }
+  },
+  "response": {
+    "candidates": [
+      {
+        "content": {
+          "parts": [
+            {
+              "inlineData": {
+                "mimeType": "image/jpeg",
+                "data": "[str 908596b]"
+              },
+              "thoughtSignature": "[str 1293716b]"
+            }
+          ],
+          "role": "model"
+        },
+        "finishReason": "STOP",
+        "index": 0
+      }
+    ],
+    "usageMetadata": {
+      "promptTokenCount": 117,
+      "candidatesTokenCount": 1514,
+      "totalTokenCount": 1631,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 117
+        }
+      ],
+      "candidatesTokensDetails": [
+        {
+          "modality": "IMAGE",
+          "tokenCount": 1120
+        }
+      ],
+      "serviceTier": "standard"
+    },
+    "modelVersion": "gemini-3.1-flash-image",
+    "responseId": "Y-2DaqbqLNirjuMPs7DEyQI"
+  }
+}

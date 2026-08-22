@@ -1,0 +1,50 @@
+{
+  "id": "mem_76ah8x240k4g",
+  "mediaFile": "media/mem_76ah8x240k4g.jpg",
+  "mime": "image/jpeg",
+  "bytes": 2696920,
+  "sha256": "c1a976304e6e85ad69c923744ea285ed63e614e9fae199637a162e2f41918e09",
+  "originalName": "upload_image-IMG_9893-c1a976304e.jpg",
+  "capturedAt": null,
+  "userNote": "Freezing. My hands were in my sleeves the whole time.",
+  "context": "winter family trip to Gangtok, Sikkim",
+  "importance": 0.7,
+  "createdAt": "2026-08-22T01:01:50.418Z",
+  "updatedAt": "2026-08-22T01:01:50.418Z",
+  "provenance": {
+    "observedBy": "local",
+    "modelRoute": "local"
+  },
+  "title": "Alone on the forest road",
+  "description": "a young man in a cream hooded sweatshirt and black cargo trousers stands on a gravel verge, arms folded, a steep pine slope rising behind him into low cloud",
+  "people": [
+    "a young man in a cream hooded sweatshirt"
+  ],
+  "setting": "a mountain road cut into a pine slope, mist sitting on the ridge",
+  "location": "Gangtok, Sikkim",
+  "event": "winter family trip",
+  "activities": [
+    "standing on the verge",
+    "waiting out the cold"
+  ],
+  "objects": [
+    "pine forest",
+    "green roofed sheds",
+    "parked cars",
+    "low cloud"
+  ],
+  "mood": [
+    "quiet",
+    "grey",
+    "patient"
+  ],
+  "tags": [
+    "portrait",
+    "forest",
+    "road",
+    "winter",
+    "mist",
+    "sikkim"
+  ],
+  "visualQuality": 0.88
+}

@@ -1,0 +1,46 @@
+{
+  "id": "mem_5ndaizt0n9eb",
+  "mediaFile": "media/mem_5ndaizt0n9eb.jpg",
+  "mime": "image/jpeg",
+  "bytes": 4672869,
+  "sha256": "0159048b6ad08c1f60f0f7bae216b21f6b055e684bfda723a090662e5b90686a",
+  "originalName": "upload_image-IMG_9907-0159048b6a.jpg",
+  "capturedAt": null,
+  "userNote": "The valley filled with cloud below us while we watched.",
+  "context": "winter family trip to Gangtok, Sikkim",
+  "importance": 0.7,
+  "createdAt": "2026-08-22T01:01:50.423Z",
+  "updatedAt": "2026-08-22T01:01:50.423Z",
+  "provenance": {
+    "observedBy": "local",
+    "modelRoute": "local"
+  },
+  "title": "Cloud coming up the valley",
+  "description": "a wide view down a forested valley with cloud lying along the floor, ridgelines fading paler into the distance and a warm band of light along the top of the sky",
+  "people": [],
+  "setting": "a high viewpoint over a forested valley, cloud below the treeline",
+  "location": "Sikkim",
+  "event": "winter family trip",
+  "activities": [
+    "watching the weather move"
+  ],
+  "objects": [
+    "pine ridges",
+    "valley cloud",
+    "distant peaks"
+  ],
+  "mood": [
+    "vast",
+    "calm",
+    "cold"
+  ],
+  "tags": [
+    "landscape",
+    "valley",
+    "cloud",
+    "mountains",
+    "wide",
+    "sikkim"
+  ],
+  "visualQuality": 0.9
+}

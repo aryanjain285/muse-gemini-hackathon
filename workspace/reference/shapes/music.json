@@ -1,0 +1,49 @@
+{
+  "request": {
+    "contents": [
+      {
+        "parts": [
+          {
+            "text": "[str 563b]"
+          }
+        ]
+      }
+    ]
+  },
+  "response": {
+    "candidates": [
+      {
+        "content": {
+          "parts": [
+            {
+              "text": "<instrumental>"
+            },
+            {
+              "inlineData": {
+                "mimeType": "audio/mpeg",
+                "data": "[str 992812b]"
+              }
+            }
+          ],
+          "role": "model"
+        },
+        "finishReason": "STOP",
+        "index": 0
+      }
+    ],
+    "usageMetadata": {
+      "promptTokenCount": 144,
+      "candidatesTokenCount": 424,
+      "totalTokenCount": 568,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 144
+        }
+      ],
+      "serviceTier": "standard"
+    },
+    "modelVersion": "lyria-3-clip-preview",
+    "responseId": "he2DatyWJZ6qg8UPxr-CkQU"
+  }
+}

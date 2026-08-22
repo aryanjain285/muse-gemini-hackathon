@@ -1,0 +1,35 @@
+{
+  "request": {
+    "instances": [
+      {
+        "prompt": "Slow cinematic dolly out. The wind moves the subject's hair and the distant clouds drift. Painterly gouache texture is preserved. No camera shake, no morphing faces.",
+        "image": {
+          "bytesBase64Encoded": "[str 908596b]",
+          "mimeType": "image/jpeg"
+        }
+      }
+    ],
+    "parameters": {
+      "aspectRatio": "9:16",
+      "durationSeconds": 4,
+      "resolution": "720p",
+      "sampleCount": 1
+    }
+  },
+  "response": {
+    "name": "models/veo-3.1-lite-generate-preview/operations/c96xm96taxvc",
+    "done": true,
+    "response": {
+      "@type": "type.googleapis.com/google.ai.generativelanguage.v1beta.PredictLongRunningResponse",
+      "generateVideoResponse": {
+        "generatedSamples": [
+          {
+            "video": {
+              "uri": "https://generativelanguage.googleapis.com/v1beta/files/sgquvqqhwtoq:download?alt=media"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

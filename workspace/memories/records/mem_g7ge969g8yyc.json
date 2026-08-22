@@ -1,0 +1,51 @@
+{
+  "id": "mem_g7ge969g8yyc",
+  "mediaFile": "media/mem_g7ge969g8yyc.jpg",
+  "mime": "image/jpeg",
+  "bytes": 1317008,
+  "sha256": "91caaa56e4c5be6ebcd9cf1b56779b09469f92a903d9de9f964127cd6766b6e1",
+  "originalName": "upload_image-IMG_9849-91caaa56e4.jpg",
+  "capturedAt": null,
+  "userNote": "The one morning the whole range came out. We had been waiting three days for this.",
+  "context": "winter family trip to Gangtok, Sikkim",
+  "importance": 0.7,
+  "createdAt": "2026-08-22T01:01:50.413Z",
+  "updatedAt": "2026-08-22T01:01:50.413Z",
+  "provenance": {
+    "observedBy": "local",
+    "modelRoute": "local"
+  },
+  "title": "The three of us under Kanchenjunga",
+  "description": "three people stand close together at a roadside railing, the snow range behind them catching first light; an older man in a blue and black jacket, a young man in a cream hooded sweatshirt, a woman in an olive quilted coat and round sunglasses",
+  "people": [
+    "an older man in a blue and black jacket",
+    "a young man in a cream hooded sweatshirt",
+    "a woman in an olive quilted coat"
+  ],
+  "setting": "a roadside viewpoint above a valley, snow peaks on the horizon",
+  "location": "Gangtok, Sikkim",
+  "event": "winter family trip",
+  "activities": [
+    "standing together for a photograph",
+    "looking at the mountains"
+  ],
+  "objects": [
+    "metal crash barrier",
+    "bare winter tree",
+    "snow range"
+  ],
+  "mood": [
+    "still",
+    "proud",
+    "cold and bright"
+  ],
+  "tags": [
+    "family",
+    "mountains",
+    "kanchenjunga",
+    "winter",
+    "portrait",
+    "sikkim"
+  ],
+  "visualQuality": 0.94
+}

@@ -1,0 +1,1 @@
+{"json":{"scores":{"identity":0.9,"continuity":0.9,"motion":0.8,"adherence":0.85,"composition":0.5},"decision":"RETRY","repair_instruction":"Remove the printed text lettering from the front of the hoodie.","reason":"Composition is compromised by visible printed text on the subject's clothing."},"hasBin":false,"createdAt":"2026-08-19T03:14:32.980Z"}

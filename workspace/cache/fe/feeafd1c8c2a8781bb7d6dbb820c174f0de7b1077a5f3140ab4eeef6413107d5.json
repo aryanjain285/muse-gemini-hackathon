@@ -1,0 +1,1 @@
+{"json":{"scores":{"identity":0.3,"continuity":0.6,"motion":0.6,"adherence":0.6,"composition":0.6},"decision":"RETRY","repair_instruction":"Keep the three family members clearly visible in the foreground throughout the camera pull-out.","reason":"Identity score is low due to distant silhouettes replacing identifiable faces."},"hasBin":false,"createdAt":"2026-08-20T04:07:47.886Z"}

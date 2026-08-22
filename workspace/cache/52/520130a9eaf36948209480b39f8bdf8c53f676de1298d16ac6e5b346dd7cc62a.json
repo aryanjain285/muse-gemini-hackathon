@@ -1,0 +1,1 @@
+{"json":{"scores":{"identity":0.85,"continuity":0.85,"motion":0.85,"adherence":0.75,"composition":0.55},"decision":"RETRY","repair_instruction":"Remove all garbled text and logos from the hoodies to maintain a clean illustration.","reason":"Garbled text appears printed on the hoodies, violating composition requirements."},"hasBin":false,"createdAt":"2026-08-20T03:17:17.715Z"}

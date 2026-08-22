@@ -1,0 +1,596 @@
+/*
+ * MUSE - "Film Lab" design system.
+ *
+ * The product is a director's console, so the surface behaves like lab
+ * equipment rather than a web dashboard: a near-black ground, one warm ember
+ * accent that only ever marks something live or selected, hairline structure,
+ * and real film grain sitting over the whole viewport.
+ *
+ * Everything downstream reads from the tokens below. Components never hardcode
+ * a colour, a curve or a radius - if a value is worth using twice it lives
+ * here, which is what keeps the ink/ember relationship consistent when the app
+ * is projected in a dark room.
+ */
+
+/* Fonts are imported first so the stylesheet stays valid CSS once Tailwind
+   inlines its own layers in place of the import below. */
+@import url("https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@300;400;500&display=swap");
+
+@import "tailwindcss";
+
+/* ==========================================================================
+   Tokens
+   ========================================================================== */
+
+@theme {
+  /* Layout spine. Three different container widths were in use across the app
+     (1100, 1200, 1600), so nothing shared an edge and every page felt like a
+     different product. One reading measure for text-led pages, one wide measure
+     for the studio, and a single gutter. */
+  --measure-page: 1200px;
+  --measure-wide: 1560px;
+  --gutter-page: 4vw;
+
+  /* Contrast floor, measured against ink-950 rather than eyeballed:
+       paper-200 12.0:1 | paper-300 9.0:1 | paper-400 6.6:1 | paper-500 4.9:1
+     Those four are the only tones permitted for text. paper-600 (3.2:1) and
+     paper-700 (2.1:1) are for rules, sprockets and disabled marks only — an
+     earlier build used them for table headers and metadata, which measured 2.3:1
+     and 1.6:1 and was simply not readable on a projector. */
+
+  /* -- ink: the ground. Cool-neutral, so the warm accent reads as light
+        rather than as a hue shift in the background itself. -------------- */
+  --color-ink-1000: #030305;
+  --color-ink-950: #08080a;
+  --color-ink-900: #0d0d11;
+  --color-ink-850: #14141a;
+  --color-ink-800: #191920;
+  --color-ink-750: #1f1f27;
+  --color-ink-700: #26262f;
+  --color-ink-600: #32323d;
+  --color-ink-500: #41414d;
+  --color-ink-400: #55555f;
+
+  /* -- paper: type and hairlines. Warm bone rather than pure white, so a
+        long reading passage does not glare on a projector. --------------- */
+  --color-paper-50: #fbfaf7;
+  --color-paper-100: #edeae3;
+  --color-paper-200: #cfc7bd;
+  --color-paper-300: #b3ada4;
+  --color-paper-400: #99938c;
+  --color-paper-500: #827d77;
+  --color-paper-600: #63605b;
+  --color-paper-700: #484542;
+
+  /* -- ember: the only accent. Reserved for live, selected and anchored. -- */
+  --color-ember-50: #fff4e8;
+  --color-ember-100: #ffe0be;
+  --color-ember-200: #ffc287;
+  --color-ember-300: #ffa24e;
+  --color-ember-400: #f5822a;
+  --color-ember-500: #d9631a;
+  --color-ember-600: #ae4712;
+  --color-ember-700: #7c300c;
+  --color-ember-800: #4a1c07;
+  --color-ember-900: #240e04;
+
+  /* -- signal: job status. Every one of these is paired with a glyph and a
+        word in the UI, so colour is reinforcement and never the only cue. - */
+  --color-signal-idle: #6b6760;
+  --color-signal-live: #ff6a2c;
+  --color-signal-ok: #7ed3a6;
+  --color-signal-warn: #e8b33f;
+  --color-signal-fail: #e0565f;
+  --color-signal-local: #7fa7d1;
+
+  /* -- structure: translucent lines and lifts that survive on any surface. */
+  --color-hairline: #ffffff14;
+  --color-hairline-strong: #ffffff26;
+  --color-hairline-ember: #f5822a3d;
+  --color-inset: #ffffff12;
+  --color-shade: #00000073;
+  --color-shimmer: #ffffff1f;
+  --color-scanline: #ffffff0a;
+  --color-sprocket: #030305;
+
+  /* -- type: an editorial serif for authored voice, a geometric grotesk for
+        interface chrome, a mono for anything that was measured. ---------- */
+  --font-display: "Instrument Serif", "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  --font-sans: "Geist", "SF Pro Text", "Segoe UI Variable Text", system-ui, sans-serif;
+  --font-mono: "Geist Mono", "IBM Plex Mono", ui-monospace, "Cascadia Mono", "SFMono-Regular", monospace;
+
+  /* -- type scale. Display steps are fluid so a heading cannot outgrow its
+        three-line ceiling on a narrow viewport. ------------------------- */
+  --text-micro: 0.625rem;
+  --text-micro--line-height: 1.15;
+  --text-micro--letter-spacing: 0.2em;
+  --text-meta: 0.6875rem;
+  --text-meta--line-height: 1.5;
+  --text-meta--letter-spacing: 0.06em;
+  --text-label: 0.75rem;
+  --text-label--line-height: 1.45;
+  --text-label--letter-spacing: 0.04em;
+  --text-body: 0.9375rem;
+  --text-body--line-height: 1.6;
+  --text-lede: 1.0625rem;
+  --text-lede--line-height: 1.55;
+  --text-readout: 1.75rem;
+  --text-readout--line-height: 1.05;
+  --text-readout--letter-spacing: -0.02em;
+  --text-display-3: clamp(1.5rem, 1.9vw + 0.8rem, 2.125rem);
+  --text-display-3--line-height: 1.12;
+  --text-display-2: clamp(2rem, 3.6vw + 0.6rem, 3.25rem);
+  --text-display-2--line-height: 1.05;
+  --text-display-1: clamp(2.5rem, 6vw + 0.4rem, 5rem);
+  --text-display-1--line-height: 0.98;
+
+  --tracking-console: 0.16em;
+  --tracking-meta: 0.06em;
+  --leading-display: 1.02;
+
+  /* -- radii. The bezel pairs are concentric by construction: an inner core
+        radius equals its shell radius minus the shell's padding. -------- */
+  --radius-shell-sm: 0.875rem; /* 14px shell over a 4px bezel */
+  --radius-core-sm: 0.625rem; /* 10px */
+  --radius-shell: 1.25rem; /* 20px shell over a 5px bezel */
+  --radius-core: 0.9375rem; /* 15px */
+  --radius-shell-lg: 1.75rem; /* 28px shell over a 6px bezel */
+  --radius-core-lg: 1.375rem; /* 22px */
+  --radius-chip: 0.375rem;
+  --radius-pill: 9999px;
+
+  --spacing-hair: 1px;
+  --spacing-bezel-sm: 4px;
+  --spacing-bezel: 5px;
+  --spacing-bezel-lg: 6px;
+  --spacing-gutter: 1.5rem;
+  --spacing-rail: 4.5rem;
+
+  --container-display: 26ch;
+  --container-prose: 62ch;
+
+  --shadow-core: inset 0 1px 0 0 #ffffff14, 0 1px 2px 0 #00000080;
+  --shadow-lift: 0 24px 64px -28px #000000d9, 0 2px 6px -2px #0000008c;
+  --shadow-ember: 0 0 0 1px #f5822a3d, 0 10px 36px -12px #f5822a4d;
+  --shadow-well: inset 0 2px 12px 0 #00000099;
+
+  /* -- motion. Every curve is asymmetric so movement reads as mass being
+        moved rather than a value being interpolated. -------------------- */
+  --ease-entrance: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-exit: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-snap: cubic-bezier(0.22, 1.28, 0.36, 1);
+  --ease-drift: cubic-bezier(0.45, 0.08, 0.55, 0.92);
+
+  --default-transition-duration: 220ms;
+  --default-transition-timing-function: var(--ease-settle);
+
+  --animate-drift: drift 38s var(--ease-drift) infinite;
+  --animate-fade-up: fade-up 620ms var(--ease-entrance) both;
+  --animate-shimmer: shimmer 1700ms var(--ease-drift) infinite;
+  --animate-sweep: sweep 2200ms var(--ease-settle) infinite;
+  --animate-rec: rec-pulse 1900ms var(--ease-drift) infinite;
+  --animate-arc: arc-spin 900ms var(--ease-drift) infinite;
+}
+
+/* ==========================================================================
+   Keyframes - transform, opacity and filter only, so no ambient loop can
+   force a layout pass while a render is in flight.
+   ========================================================================== */
+
+@keyframes drift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translate3d(4%, -3%, 0) scale(1.14);
+    opacity: 0.82;
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.5;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    transform: translate3d(0, 14px, 0);
+    opacity: 0;
+    filter: blur(6px);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+@keyframes shimmer {
+  from {
+    transform: translate3d(-110%, 0, 0);
+  }
+  to {
+    transform: translate3d(110%, 0, 0);
+  }
+}
+
+@keyframes sweep {
+  0% {
+    transform: translate3d(-45%, 0, 0);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  88% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(340%, 0, 0);
+    opacity: 0;
+  }
+}
+
+@keyframes rec-pulse {
+  0% {
+    transform: scale(0.86);
+    opacity: 0.55;
+  }
+  45% {
+    transform: scale(1.12);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.86);
+    opacity: 0.55;
+  }
+}
+
+@keyframes arc-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Nudging the noise tile a fraction of a tile per cycle is what stops static
+   grain from reading as a dirty projector lens. */
+@keyframes grain-shift {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  25% {
+    transform: translate3d(-2%, 1%, 0);
+  }
+  50% {
+    transform: translate3d(1%, -2%, 0);
+  }
+  75% {
+    transform: translate3d(-1%, -1%, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
+@layer base {
+  :root {
+    color-scheme: dark;
+    /* Shared by every film layer so one page can dial the whole treatment. */
+    --grain-opacity: 0.05;
+    --vignette-strength: 0.22;
+  }
+
+  /* The ground is painted on the root element rather than on the body. The root
+     background becomes the canvas, which is the one layer a negative z-index
+     child of the body can still sit in front of - that is what lets the ambient
+     ember glows drift behind page content instead of on top of it. A single
+     cold pool of light at the top keeps the ground from reading as a flat fill
+     without introducing a second hue. */
+  html {
+    -webkit-text-size-adjust: 100%;
+    background-color: var(--color-ink-950);
+    background-image: radial-gradient(120% 70% at 50% -10%, var(--color-ink-900) 0%, var(--color-ink-950) 58%);
+    background-attachment: fixed;
+  }
+
+  body {
+    min-height: 100dvh;
+    background-color: transparent;
+    color: var(--color-paper-100);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-synthesis-weight: none;
+  }
+
+  /* Base film layers. Fixed to the viewport and never interactive, so grain is
+     a property of the projection rather than of any one element. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    pointer-events: none;
+    opacity: var(--grain-opacity);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='muse-grain-a' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch' seed='11'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23muse-grain-a)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    mix-blend-mode: overlay;
+  }
+
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 61;
+    pointer-events: none;
+    background-image: radial-gradient(
+      112% 84% at 50% 46%,
+      transparent 42%,
+      rgb(0 0 0 / calc(var(--vignette-strength) * 0.5)) 78%,
+      rgb(0 0 0 / var(--vignette-strength)) 100%
+    );
+  }
+
+  ::selection {
+    background-color: var(--color-ember-700);
+    color: var(--color-paper-50);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ember-300);
+    outline-offset: 2px;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-weight: 400;
+  }
+
+  input,
+  textarea,
+  select,
+  button {
+    font: inherit;
+    color: inherit;
+  }
+
+  /* Anything measured is set in mono with fixed-width digits, so a readout
+     does not reflow as its value changes. */
+  code,
+  kbd,
+  samp,
+  pre {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background-color: var(--color-ink-950);
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--color-ink-700);
+    border-radius: var(--radius-pill);
+    border: 2px solid var(--color-ink-950);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-ink-600);
+  }
+}
+
+/* ==========================================================================
+   Film layers and stateful surfaces. GrainOverlay composes the first three to
+   deepen the base treatment on hero surfaces.
+   ========================================================================== */
+
+@layer components {
+  .film-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 62;
+  }
+
+  .film-grain {
+    opacity: var(--grain-opacity);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='muse-grain-b' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='3' stitchTiles='stitch' seed='23'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23muse-grain-b)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    mix-blend-mode: overlay;
+    will-change: transform;
+    animation: grain-shift 1200ms var(--ease-drift) infinite;
+  }
+
+  .film-vignette {
+    background-image: radial-gradient(
+      108% 80% at 50% 44%,
+      transparent 38%,
+      rgb(0 0 0 / calc(var(--vignette-strength) * 0.55)) 76%,
+      rgb(0 0 0 / var(--vignette-strength)) 100%
+    );
+  }
+
+  /* Three-pixel pitch, barely above the noise floor: it registers as a signal
+     path on a projector without turning into a moire pattern. */
+  .film-scanline {
+    background-image: repeating-linear-gradient(
+      to bottom,
+      var(--color-scanline) 0px,
+      var(--color-scanline) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    opacity: 0.7;
+  }
+
+  .ambient-glow {
+    position: absolute;
+    border-radius: var(--radius-pill);
+    filter: blur(90px);
+    will-change: transform, opacity;
+  }
+
+  /* Entrance choreography: the caller supplies --stagger as a row index and
+     each row falls into place behind the one above it. */
+  .stagger {
+    --stagger: 0;
+    animation-delay: calc(var(--stagger) * 70ms);
+    animation-fill-mode: both;
+  }
+
+  /* Waiting on a model: a light band crossing a dim plate. */
+  .shimmer {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .shimmer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(
+      104deg,
+      transparent 18%,
+      var(--color-shimmer) 48%,
+      var(--color-shimmer) 52%,
+      transparent 82%
+    );
+    animation: var(--animate-shimmer);
+    will-change: transform;
+  }
+
+  /* A scene actively rendering: an ember bar scanning the width of the plate,
+     which is a different signal from waiting and reads as work happening. */
+  .scanning {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .scanning::after {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inline-size: 30%;
+    background-image: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--color-hairline-ember) 40%,
+      var(--color-ember-300) 50%,
+      var(--color-hairline-ember) 60%,
+      transparent 100%
+    );
+    opacity: 0.42;
+    animation: var(--animate-sweep);
+    will-change: transform;
+  }
+}
+
+/* ==========================================================================
+   Utilities
+   ========================================================================== */
+
+/* Film perforations. Applied to a thin strip the holes punch through to the
+   ground colour, so a scene block reads as a frame cut from a strip. */
+@utility sprocket {
+  --sprocket-pitch: 12px;
+  --sprocket-hole: 6px;
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--color-sprocket) 0,
+    var(--color-sprocket) var(--sprocket-hole),
+    transparent var(--sprocket-hole),
+    transparent var(--sprocket-pitch)
+  );
+  background-repeat: repeat-x;
+  background-position: center;
+  background-size: var(--sprocket-pitch) var(--sprocket-hole);
+}
+
+/* Perforations on both long edges, for a full filmstrip cell. */
+@utility sprocket-edges {
+  --sprocket-pitch: 12px;
+  --sprocket-hole: 5px;
+  background-image:
+    repeating-linear-gradient(
+      to right,
+      var(--color-sprocket) 0,
+      var(--color-sprocket) var(--sprocket-hole),
+      transparent var(--sprocket-hole),
+      transparent var(--sprocket-pitch)
+    ),
+    repeating-linear-gradient(
+      to right,
+      var(--color-sprocket) 0,
+      var(--color-sprocket) var(--sprocket-hole),
+      transparent var(--sprocket-hole),
+      transparent var(--sprocket-pitch)
+    );
+  background-repeat: repeat-x, repeat-x;
+  background-position:
+    center top,
+    center bottom;
+  background-size: var(--sprocket-pitch) var(--sprocket-hole);
+}
+
+/* Digits in tables, rulers and readouts must occupy identical width. */
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* ==========================================================================
+   Reduced motion. Ambient and looping treatments are atmosphere, not
+   information, so they stop entirely; one-shot entrances collapse to their
+   final frame. The !important flags are deliberate - Tailwind's animate-*
+   utilities live in the same cascade layer and would otherwise win on source
+   order.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .film-grain,
+  .ambient-glow,
+  .shimmer::after,
+  .scanning::after {
+    animation: none !important;
+  }
+
+  .animate-drift,
+  .animate-shimmer,
+  .animate-sweep,
+  .animate-rec,
+  .animate-arc {
+    animation: none !important;
+  }
+
+  .animate-fade-up,
+  .stagger {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+  }
+
+  /* The render sweep is the one loop that carries state, so it stays visible
+     as a static ember band rather than disappearing. */
+  .scanning::after {
+    opacity: 0.26;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 1ms !important;
+  }
+}

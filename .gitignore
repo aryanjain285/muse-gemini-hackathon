@@ -1,0 +1,90 @@
+# ── secrets ──────────────────────────────────────────────────────────────────
+# Never commit a key. .env.example documents the variables instead.
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+!**/*.key.example
+
+# ── dependencies ─────────────────────────────────────────────────────────────
+node_modules/
+.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# ── build output ─────────────────────────────────────────────────────────────
+.next/
+out/
+build/
+dist/
+*.tsbuildinfo
+next-env.d.ts
+
+# ── runtime data ─────────────────────────────────────────────────────────────
+# Everything MUSE generates at runtime. Most of it is exhaust: scratch files, superseded
+# renders, logs, and somebody's private photographs.
+#
+# "All of it is reproducible" is what this used to say, and it was only true if you were
+# willing to pay to generate it again — which is no use to somebody who has just cloned the
+# repository. So the parts that make one finished film reproducible for nothing are kept,
+# and the rest is still ignored.
+workspace/*
+
+# The model response cache. Content-addressed on the request, so every director, keyframe,
+# score and video call for a committed film replays for $0 instead of about $2.20.
+!workspace/cache/
+
+# What the never-fail engine falls back to when there is no key, no network or no budget,
+# and what scripts/doctor.ts checks is present.
+!workspace/reference/
+
+# The project rows, specs, assets and ledger. Without it the gallery is empty and a
+# committed film is a file with nothing pointing at it. Asset paths are stored relative to
+# the workspace so this survives being cloned to a different directory.
+!workspace/muse.db
+
+# The demo film and the shots it was cut from. One project, not the twenty-eight renders
+# and three hundred assets this directory accumulates.
+!workspace/demo/
+
+# The memory library: the photographs the gallery is built from and the metadata describing
+# them. Small, and it is the first screen anybody opens — a clone without it shows an empty
+# library and no way to fill one without a key.
+!workspace/memories/
+
+# Never: scratch space, logs, and the uploads of whoever ran it.
+workspace/tmp/
+workspace/logs/
+
+# ── test and tooling artefacts ───────────────────────────────────────────────
+coverage/
+.nyc_output/
+.vitest-cache/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.eslintcache
+
+# ── editor and OS ────────────────────────────────────────────────────────────
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── scratch ──────────────────────────────────────────────────────────────────
+scratch/
+tmp/
+*.local
+
+# ── local agent tooling ──────────────────────────────────────────────────────
+# Editor/agent configuration and the design skill library used while building.
+# Local tooling rather than part of the product; un-ignore if you want them public.
+.agents/
+.claude/

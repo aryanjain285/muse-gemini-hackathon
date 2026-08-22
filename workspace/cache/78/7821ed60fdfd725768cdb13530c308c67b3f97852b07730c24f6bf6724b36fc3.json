@@ -1,0 +1,1 @@
+{"json":{"scores":{"identity":0.9,"continuity":0.9,"motion":0.85,"adherence":0.95,"composition":0.85},"decision":"PASS","repair_instruction":"Maintain current character consistency while keeping the background clouds moving smoothly.","reason":"All visual axes score well above the required threshold for pass."},"hasBin":false,"createdAt":"2026-08-20T03:13:46.268Z"}
