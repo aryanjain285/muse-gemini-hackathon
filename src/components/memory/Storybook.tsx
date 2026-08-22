@@ -20,7 +20,7 @@
  * a slideshow with a border.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Button, Eyebrow, Icon, Spinner } from "@/components/ui/primitives";
+import { Badge, Button, Eyebrow, Icon, Panel, Spinner, Textarea } from "@/components/ui/primitives";
 
 export interface StorybookPage {
   memoryId: string;
@@ -31,8 +31,10 @@ export interface StorybookPage {
 }
 
 export interface StorybookData {
+  id: string;
   title: string;
   dedication: string;
+  request: string;
   pages: StorybookPage[];
   route: string;
   createdAt: string;
@@ -49,10 +51,13 @@ interface Sheet {
 
 const EASE = "cubic-bezier(0.32, 0.72, 0, 1)";
 
-export default function Storybook({ initial }: { initial: StorybookData | null }) {
-  const [book, setBook] = useState<StorybookData | null>(initial);
+export default function Storybook({ shelf }: { shelf: StorybookData[] }) {
+  const [books, setBooks] = useState<StorybookData[]>(shelf);
+  const [openId, setOpenId] = useState<string | null>(shelf[0]?.id ?? null);
+  const [request, setRequest] = useState("");
   const [working, setWorking] = useState(false);
   const [error, setError] = useState("");
+  const book = books.find((b) => b.id === openId) ?? null;
   /** How many leaves have been turned. 0 is the closed cover. */
   const [turned, setTurned] = useState(0);
   const dragFrom = useRef<number | null>(null);
@@ -101,46 +106,133 @@ export default function Storybook({ initial }: { initial: StorybookData | null }
     return () => window.removeEventListener("keydown", onKey);
   }, [turn, leaves]);
 
-  const make = useCallback(
-    async (fresh: boolean) => {
-      setWorking(true);
-      setError("");
-      try {
-        const res = await fetch("/api/storybook", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ fresh }),
-        });
-        const json = await res.json().catch(() => null);
-        if (!res.ok) throw new Error(json?.error ?? "the book could not be written");
-        setBook(json.storybook as StorybookData);
-        setTurned(0);
-      } catch (e) {
-        setError(e instanceof Error ? e.message : String(e));
-      } finally {
-        setWorking(false);
-      }
+  const make = useCallback(async () => {
+    setWorking(true);
+    setError("");
+    try {
+      const res = await fetch("/api/storybook", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ request: request.trim() }),
+      });
+      const json = await res.json().catch(() => null);
+      if (!res.ok) throw new Error(json?.error ?? "the book could not be written");
+      const fresh = json.storybook as StorybookData;
+      setBooks((was) => [fresh, ...was]);
+      setOpenId(fresh.id);
+      setRequest("");
+      setTurned(0);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setWorking(false);
+    }
+  }, [request]);
+
+  const remove = useCallback(
+    async (bookId: string) => {
+      const res = await fetch(`/api/storybook/${bookId}`, { method: "DELETE" });
+      if (!res.ok) return;
+      setBooks((was) => {
+        const left = was.filter((b) => b.id !== bookId);
+        setOpenId((current) => (current === bookId ? (left[0]?.id ?? null) : current));
+        return left;
+      });
+      setTurned(0);
     },
     [],
   );
 
+  /** The form that makes a book, shown whether or not one is open. */
+  const composer = (
+    <Panel tone="raised" padding="lg" className="w-full">
+      <Eyebrow tone="ember">New book</Eyebrow>
+      <p className="mt-2 max-w-xl font-sans text-[13px] leading-relaxed text-paper-400">
+        Say what this one is about, or leave it blank and MUSE will decide. It writes a page for
+        each memory and illustrates it with the drawing it made.
+      </p>
+      <div className="mt-4 flex flex-col gap-3">
+        <Textarea
+          value={request}
+          onChange={(e) => setRequest(e.target.value)}
+          rows={2}
+          placeholder="A book about the cold, and waiting for the mountains to come out."
+        />
+        <div className="flex flex-wrap items-center gap-3">
+          <Button onClick={() => void make()} loading={working} trailingIcon="wand">
+            {working ? "Writing" : "Write the book"}
+          </Button>
+          {error ? <span className="font-sans text-[13px] text-signal-fail">{error}</span> : null}
+        </div>
+      </div>
+    </Panel>
+  );
+
+  /** Every book written so far, newest first. */
+  const shelfStrip =
+    books.length === 0 ? null : (
+      <div className="w-full">
+        <Eyebrow>On the shelf · {books.length}</Eyebrow>
+        <ul className="mt-3 flex list-none flex-wrap gap-2">
+          {books.map((b) => {
+            const open = b.id === book?.id;
+            return (
+              <li key={b.id} className="flex items-center gap-1">
+                <button
+                  type="button"
+                  aria-current={open ? "true" : undefined}
+                  onClick={() => {
+                    setOpenId(b.id);
+                    setTurned(0);
+                  }}
+                  className={`flex items-center gap-2 rounded-core border px-3 py-2 text-left transition-colors duration-200 ${
+                    open
+                      ? "border-hairline-ember bg-ink-850 text-paper-50"
+                      : "border-hairline bg-ink-950 text-paper-300 hover:border-hairline-strong"
+                  }`}
+                >
+                  <img
+                    src={`${b.pages[0]?.imageUrl ?? ""}?w=160`}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    className="size-9 shrink-0 rounded-core-sm object-cover"
+                  />
+                  <span className="min-w-0">
+                    <span className="block max-w-[16ch] truncate font-sans text-[13px] leading-tight">
+                      {b.title}
+                    </span>
+                    <span className="block font-mono text-[10px] leading-tight text-paper-600">
+                      {b.pages.length} pages
+                    </span>
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  aria-label={`Delete ${b.title}`}
+                  title="Delete"
+                  onClick={() => void remove(b.id)}
+                  className="rounded-core p-1.5 text-paper-700 transition-colors hover:bg-ink-850 hover:text-signal-fail"
+                >
+                  <Icon name="close" size={11} />
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    );
+
   if (!book) {
     return (
-      <div className="flex flex-col items-center gap-6 py-16 text-center">
-        <div>
+      <div className="flex flex-col items-center gap-7">
+        <div className="w-full text-center">
           <Eyebrow tone="ember">Storybook</Eyebrow>
           <h1 className="mt-3 font-display text-[clamp(2.2rem,5vw,3.6rem)] leading-[1.02] tracking-[-0.03em] text-paper-50">
             Bind your memories into a book.
           </h1>
-          <p className="mx-auto mt-3 max-w-md font-sans text-[14px] leading-7 text-paper-400">
-            MUSE writes a page for each memory, illustrates it with the drawing it made, and hands
-            you something you turn the pages of.
-          </p>
         </div>
-        <Button onClick={() => void make(false)} loading={working} trailingIcon="wand">
-          {working ? "Writing" : "Write the book"}
-        </Button>
-        {error ? <p className="font-sans text-[13px] text-signal-fail">{error}</p> : null}
+        {composer}
       </div>
     );
   }
@@ -157,9 +249,19 @@ export default function Storybook({ initial }: { initial: StorybookData | null }
             {book.title}
           </h1>
         </div>
-        <div className="flex items-center gap-3">
-          <Button variant="quiet" size="sm" onClick={() => void make(true)} loading={working}>
-            Write it again
+        <div className="flex flex-wrap items-center gap-3">
+          <Badge tone="neutral">{book.pages.length} pages</Badge>
+          <Button
+            variant="quiet"
+            size="sm"
+            onClick={() => {
+              // A download rather than a print dialog: the file is built server-side, so what
+              // arrives is the book, not a screenshot of a web page.
+              window.location.href = `/api/storybook/${book.id}/pdf`;
+            }}
+            trailingIcon="download"
+          >
+            PDF
           </Button>
         </div>
       </div>
@@ -298,10 +400,14 @@ export default function Storybook({ initial }: { initial: StorybookData | null }
       {working ? (
         <div className="flex items-center gap-2">
           <Spinner size={13} />
-          <Eyebrow>rewriting</Eyebrow>
+          <Eyebrow>writing</Eyebrow>
         </div>
       ) : null}
-      {error ? <p className="font-sans text-[13px] text-signal-fail">{error}</p> : null}
+
+      <div className="mt-4 flex w-full flex-col gap-7">
+        {shelfStrip}
+        {composer}
+      </div>
     </div>
   );
 }

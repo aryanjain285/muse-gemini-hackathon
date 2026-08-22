@@ -8,8 +8,6 @@
  *
  * Persisted, so opening the book a second time is instant and so it can be committed and travel.
  */
-import fs from "node:fs";
-import path from "node:path";
 import { z } from "zod";
 import { bootstrap } from "@/lib/server/bootstrap";
 import { body, fail, handler, ok } from "@/lib/server/http";
@@ -20,15 +18,13 @@ import { generateContent, jsonOf, usageOf } from "@/lib/models/gemini";
 import { storybookPrompt, STORYBOOK_SCHEMA } from "@/lib/templates/prompts";
 import { profileFor } from "@/lib/core/config";
 import { autoProfile } from "@/lib/server/views";
-import { PATHS } from "@/lib/core/paths";
 import { truncate } from "@/lib/core/util";
+import { Storybooks, type Storybook, type StorybookPage } from "@/lib/memory/storybooks";
 
 export const dynamic = "force-dynamic";
 
 const AskSchema = z.object({
   request: z.string().max(300).default(""),
-  /** Rebuild even though a book is already saved. */
-  fresh: z.boolean().default(false),
 });
 
 const WireSchema = z.object({
@@ -44,25 +40,6 @@ const WireSchema = z.object({
     )
     .min(1),
 });
-
-export interface StorybookPage {
-  memoryId: string;
-  heading: string;
-  text: string;
-  /** The drawing if one exists, otherwise the photograph. */
-  imageUrl: string;
-  drawn: boolean;
-}
-
-export interface Storybook {
-  title: string;
-  dedication: string;
-  pages: StorybookPage[];
-  route: string;
-  createdAt: string;
-}
-
-const SAVED = () => path.join(PATHS.workspace, "storybook.json");
 
 function illustrate(memoryId: string): { imageUrl: string; drawn: boolean } {
   const memory = Memories.get(memoryId);
@@ -80,29 +57,14 @@ function illustrate(memoryId: string): { imageUrl: string; drawn: boolean } {
   return preferred ? { imageUrl: preferred.url, drawn: true } : { imageUrl: photo, drawn: false };
 }
 
-export const GET = handler("storybook.read", async () => {
+export const GET = handler("storybook.list", async () => {
   bootstrap();
-  const file = SAVED();
-  if (!fs.existsSync(file)) return ok({ storybook: null });
-  try {
-    return ok({ storybook: JSON.parse(fs.readFileSync(file, "utf8")) as Storybook });
-  } catch {
-    return ok({ storybook: null });
-  }
+  return ok({ storybooks: Storybooks.list() });
 });
 
 export const POST = handler("storybook.write", async (req: Request) => {
   bootstrap();
   const input = await body(req, AskSchema);
-  const file = SAVED();
-
-  if (!input.fresh && fs.existsSync(file)) {
-    try {
-      return ok({ storybook: JSON.parse(fs.readFileSync(file, "utf8")) as Storybook, reused: true });
-    } catch {
-      /* fall through and write a new one */
-    }
-  }
 
   const memories = Memories.list();
   if (memories.length === 0) return fail("there are no memories to make a book from", 400);
@@ -166,26 +128,26 @@ export const POST = handler("storybook.write", async (req: Request) => {
   });
 
   const known = new Set(memories.map((m) => m.id));
-  const storybook: Storybook = {
+  const pages: StorybookPage[] = result.value.pages
+    .filter((p) => known.has(p.memory_id))
+    .map((p) => ({
+      memoryId: p.memory_id,
+      heading: p.heading,
+      text: p.text,
+      ...illustrate(p.memory_id),
+    }));
+
+  if (pages.length === 0) return fail("the book came back with no usable pages", 502);
+
+  const storybook: Storybook = Storybooks.create({
     title: result.value.title,
     dedication: result.value.dedication,
+    request: input.request,
     // A page about a memory that does not exist is dropped rather than shown: the instruction says
     // never to invent one, and this is the check that makes it true rather than hoped for.
-    pages: result.value.pages
-      .filter((p) => known.has(p.memory_id))
-      .map((p) => ({
-        memoryId: p.memory_id,
-        heading: p.heading,
-        text: p.text,
-        ...illustrate(p.memory_id),
-      })),
+    pages,
     route: result.route,
-    createdAt: new Date().toISOString(),
-  };
+  });
 
-  if (storybook.pages.length === 0) return fail("the book came back with no usable pages", 502);
-
-  fs.mkdirSync(path.dirname(file), { recursive: true });
-  fs.writeFileSync(file, JSON.stringify(storybook, null, 2));
-  return ok({ storybook, reused: false });
+  return ok({ storybook }, 201);
 });
