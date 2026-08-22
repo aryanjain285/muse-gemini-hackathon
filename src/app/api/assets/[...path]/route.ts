@@ -65,16 +65,33 @@ async function thumbnail(abs: string, width: number): Promise<string | null> {
   if (fs.existsSync(out)) return out;
 
   fs.mkdirSync(dir, { recursive: true });
+
+  // Written to a unique temporary name and renamed into place.
+  //
+  // A page asking for fourteen thumbnails at once asks for some of them twice, and with a cold
+  // cache every one of those requests found the file missing and started its own ffmpeg. Two
+  // processes writing one path produced a half-written JPEG or, on Windows, a locked file and a
+  // 500 — so the first load of the sketch studio on a fresh machine showed broken images. Rename
+  // is atomic, so the loser of the race simply finds the winner's file.
+  const staging = `${out}.${process.pid}-${Math.random().toString(36).slice(2, 8)}.jpg`;
   try {
     await runFfmpeg("ffmpeg", [
       "-y", "-i", abs,
       "-vf", `scale=${width}:-2:flags=lanczos`,
       "-frames:v", "1", "-q:v", "4",
-      out,
+      staging,
     ]);
+    if (!fs.existsSync(staging)) return null;
+    try {
+      fs.renameSync(staging, out);
+    } catch {
+      // Somebody else got there first, which is the good outcome.
+      fs.rmSync(staging, { force: true });
+    }
     return fs.existsSync(out) ? out : null;
   } catch {
     // A resize that fails is not a reason to fail the request: the original still serves.
+    fs.rmSync(staging, { force: true });
     return null;
   }
 }
