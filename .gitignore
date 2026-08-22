@@ -53,10 +53,11 @@ workspace/*
 # library and no way to fill one without a key.
 !workspace/memories/
 
-# The written storybook. A few kilobytes of prose, and the page reads it server-side so the
-# cover is on the first paint — without it the book has to be written again before it can be
-# opened, which is the one thing a demo cannot wait for.
-!workspace/storybook.json
+# The written storybooks. A few kilobytes of prose each, and the page reads them server-side so
+# a cover is on the first paint — without them the shelf is empty on any machine but the one that
+# wrote them, which is exactly what happened: the allow-list named the single file this feature
+# started as, the shelf moved to a directory, and the directory was never admitted.
+!workspace/storybooks/
 
 # Never: scratch space, logs, and the uploads of whoever ran it.
 workspace/tmp/
