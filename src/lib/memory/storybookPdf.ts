@@ -12,6 +12,8 @@
  */
 import fs from "node:fs";
 
+import { sha256 } from "@/lib/core/util";
+
 /** A4 portrait, in points. */
 const PAGE_W = 595;
 const PAGE_H = 842;
@@ -88,10 +90,21 @@ function textWidth(s: string, size: number): number {
   return (total / 1000) * size;
 }
 
+/** The text as it will actually be written, so wrapping measures what the page draws. */
+function forDrawing(s: string): string {
+  return s
+    .replace(/[‘’‛]/g, "'")
+    .replace(/[“”]/g, '"')
+    .replace(/[–—]/g, "-")
+    .replace(/…/g, "...")
+    .replace(/ /g, " ")
+    .replace(/[^ -~¡-ÿ]/g, "");
+}
+
 /** Break a paragraph into lines that fit, on word boundaries. */
 function wrap(text: string, size: number, maxWidth: number): string[] {
   const lines: string[] = [];
-  for (const paragraph of text.split(/\n+/)) {
+  for (const paragraph of forDrawing(text).split(/\n+/)) {
     let line = "";
     for (const word of paragraph.split(/\s+/).filter(Boolean)) {
       const candidate = line ? `${line} ${word}` : word;
@@ -107,9 +120,20 @@ function wrap(text: string, size: number, maxWidth: number): string[] {
   return lines;
 }
 
-/** Escape the three characters that would otherwise end a PDF string early. */
+/**
+ * Make a string safe to write inside a PDF literal, in the encoding the font declares.
+ *
+ * Two jobs. Parentheses and backslashes end or escape a literal, so they are escaped. And anything
+ * outside WinAnsi is folded to something inside it first — encoding a string as latin1 truncates a
+ * character like an em dash to a single byte, and if that byte happened to be a parenthesis the
+ * content stream would end mid-sentence and the page would render blank. Folding before escaping
+ * means that cannot happen.
+ */
 function pdfString(s: string): string {
-  return s.replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)");
+  return forDrawing(s)
+    .replace(/\\/g, "\\\\")
+    .replace(/\(/g, "\\(")
+    .replace(/\)/g, "\\)");
 }
 
 /**
@@ -148,8 +172,15 @@ export function storybookPdf(input: {
     return objects.length; // object numbers are 1-based
   };
 
-  const fontId = add("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>");
-  const boldId = add("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>");
+  // `/Encoding` is not optional in practice. Without it a reader is free to map bytes through the
+  // font's built-in encoding, and the built-in encoding of a standard font is not WinAnsi — so a
+  // reader that takes the specification literally shows the wrong glyph, or nothing.
+  const fontId = add(
+    "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>",
+  );
+  const boldId = add(
+    "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>",
+  );
 
   interface Placed {
     contentId: number;
@@ -272,7 +303,7 @@ export function storybookPdf(input: {
   const pagesTreeId = objects.length + placed.length + 1;
   for (const p of placed) {
     const resources =
-      `<< /Font << /F1 ${fontId} 0 R /F2 ${boldId} 0 R >>` +
+      `<< /ProcSet [/PDF /Text /ImageC] /Font << /F1 ${fontId} 0 R /F2 ${boldId} 0 R >>` +
       (p.imageId ? ` /XObject << /Im0 ${p.imageId} 0 R >>` : "") +
       " >>";
     pageIds.push(
@@ -309,6 +340,10 @@ export function storybookPdf(input: {
     offset += opener.length + body.length + closer.length;
   });
 
+  // Readers use /ID to tell one revision of a file from another, and some validators refuse a
+  // trailer without one. Derived from the content so the same book produces the same file.
+  const fileId = sha256(`${input.title}|${input.pages.length}|${offset}`).slice(0, 32).toUpperCase();
+
   const xrefAt = offset;
   const xref = [
     `xref`,
@@ -316,7 +351,7 @@ export function storybookPdf(input: {
     `0000000000 65535 f `,
     ...offsets.map((o) => `${String(o).padStart(10, "0")} 00000 n `),
     `trailer`,
-    `<< /Size ${objects.length + 1} /Root ${catalogId} 0 R /Info ${infoId} 0 R >>`,
+    `<< /Size ${objects.length + 1} /Root ${catalogId} 0 R /Info ${infoId} 0 R /ID [<${fileId}> <${fileId}>] >>`,
     `startxref`,
     String(xrefAt),
     `%%EOF`,
