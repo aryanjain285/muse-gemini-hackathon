@@ -9,7 +9,7 @@
 Hand MUSE the photographs you already have. It casts the faces, writes the story,
 composes a score for it, and lands every cut on the beat.
 
-`Gemini 3.6 Flash` · `Gemini 3.1 Flash Image` · `Lyria 3` · `Veo 3.1` · `FFmpeg`
+`Gemini 3.7 Flash` · `Gemini 3.1 Flash Image` · `Lyria 3` · `Veo 3.1` · `FFmpeg`
 
 </div>
 
@@ -19,6 +19,27 @@ composes a score for it, and lands every cut on the beat.
 
 One winter trip. Five phone photographs. Nothing changed between these but the theme —
 same faces, same mountain, same story, and nothing about one reads like the other.
+
+<div align="center">
+
+<table>
+<tr>
+<td width="50%" align="center">
+<img src="docs/preview/gangtok-pink-dawn-prj_v0b74ybbt2ki-v5.gif" width="300" alt="Gangtok Pink Dawn — the family under a rose-pink Kanchenjunga, in gouache">
+<br><b>Gangtok Pink Dawn</b><br>
+<sub>gouache · 124 BPM · <a href="workspace/demo/gangtok-pink-dawn-prj_v0b74ybbt2ki-v5.mp4">the full film, with sound</a></sub>
+</td>
+<td width="50%" align="center">
+<img src="docs/preview/pink-dawn-over-gangtok-prj_qwa5biy5b46y-v1.gif" width="300" alt="Pink Dawn Over Gangtok — the same family, cel-shaded in magenta and cyan">
+<br><b>Pink Dawn Over Gangtok</b><br>
+<sub>neon anime · 152 BPM · <a href="workspace/demo/files/renders/pink-dawn-over-gangtok-prj_qwa5biy5b46y-v1.mp4">the full film, with sound</a></sub>
+</td>
+</tr>
+</table>
+
+<sub>Both loops are the same moment of the same trip. The previews are silent; the films are not.</sub>
+
+</div>
 
 | | **Gangtok Pink Dawn** | **Pink Dawn Over Gangtok** |
 |---|---|---|
@@ -32,20 +53,53 @@ same faces, same mountain, same story, and nothing about one reads like the othe
 Both are committed. `npm run setup && npm run dev` and they play — no key, no network,
 no budget.
 
+## The vision
+
+Everyone is carrying thousands of photographs of the best days of their life, and doing nothing
+with them. They sit in a roll nobody scrolls back through, sorted by date, described by nothing.
+The moment is in there — the cold, the waiting, the light finally arriving — and a still frame is
+the one thing that cannot carry it.
+
+The tools that promise to help ask you to become a director. Write a prompt, pick a model, wait,
+receive a clip, try again. What comes back is generically beautiful and about nobody: the faces
+drift between shots, the pacing has no relationship to the music, and the people in it are not
+your people.
+
+**MUSE takes the other side of that.** You bring what you already have and say one true sentence
+about it. It decides what the film is: which moments carry it, in what order, how long each is
+held, what it should sound like, and where every cut falls. Then it makes that film, watches it
+back, and fixes what it got wrong — and if a shot comes back beautiful but wrong about who is in
+it, it throws the beautiful one away.
+
+The bet is that the interesting part of this technology is not generation. Generation is a
+commodity and getting cheaper every month. The interesting part is **judgement**: a system that
+holds a view of the whole film, knows what it was trying to do, and can tell when it has failed.
+
+That is what a director is. Not a model — a decision-maker with taste and a deadline.
+
+## Where it goes
+
+A film today. A film in any voice you like. And then the same engine pointed at the rest of it:
+a year of photographs instead of five, a wedding, a child growing up, a trip somebody is not
+coming back from. The plan is a document, so it can be edited by asking. The score is composed
+per film, so it can be re-composed. The theme is a variable, so the same memory can be a
+watercolour for your mother and neon for your friends.
+
+The photographs are already taken. Nobody has to become a director.
+
 ## Every modality, on the same plan
 
 This is not one model behind a prompt box. It is four, coordinated by a document.
 
 | | model | what it actually does |
 |---|---|---|
-| **see** | Gemini 3.6 Flash | reads the photographs — who is in them, what must not drift between shots, how many faces are in frame |
-| **think** | Gemini 3.6 Flash | writes one timestamped plan: shots, shot sizes, camera, transitions, musical events |
-| **draw** | Gemini 3.1 Flash Image | keyframes for every shot, and the sketch studio's caricatures |
+| **see** | Gemini 3.7 Flash | reads the photographs — who is in them, what must not drift between shots, how many faces are in frame |
+| **think** | Gemini 3.7 Flash | writes one timestamped plan: shots, shot sizes, camera, transitions, musical events |
+| **draw** | Gemini 3.1 Flash Image | a keyframe for every shot, from the photographs and the plan |
 | **hear** | Lyria 3 | an original score composed for *this* plan, not a library track |
 | **move** | Veo 3.1 | animates the approved keyframe, never a bare prompt |
-| **judge** | Gemini 3.6 Flash | scores every finished shot against the photographs it came from |
-| **talk** | Gemini 3.6 Flash | Ask MUSE, grounded so it cannot invent a memory you do not have |
-| **write** | Gemini 3.6 Flash | storybook prose, built on your own notes |
+| **judge** | Gemini 3.7 Flash | scores every finished shot against the photographs it came from |
+| **talk** | Gemini 3.7 Flash | Ask MUSE, grounded so it cannot invent a memory you do not have |
 
 Text in, images in, images out, audio out, video out, and structured JSON at every
 boundary so the pieces can be checked rather than hoped about.
@@ -66,15 +120,11 @@ another.
 compose. Four presets, five render modes, four edit styles, and a screening room where
 MUSE watches the film it just made and says what it would change.
 
-**The sketch studio.** The same image model draws one of your photographs by hand —
-caricature, pencil, ink or watercolour — on an easel under a light, with the likeness and
-the headcount pinned so a family of three comes back as three.
+**Any voice you like.** Four presets, and the theme is a variable rather than a label: the same
+five photographs came back as loose gouache at 124 BPM and as cel-shaded neon anime at 152, each
+with its own palette, camera grammar and score, and the same faces in both.
 
-**The storybook.** A page per memory, written in plain words and illustrated by the
-drawings. It turns — real leaves hinged on a spine in 3D, arrow keys, click zones, drag —
-and exports as a **PDF written by hand**, embedding the illustrations losslessly.
-
-## The part I would show a judge
+## Judgement, not just generation
 
 Quality control is not a rubber stamp. The critic is sent the original photographs and
 counts the people in frame; a wrong face or an invented figure caps its identity score
@@ -174,8 +224,8 @@ database it replaced, and restores the media. Stop `npm run dev` first.
 
 That is the whole first run, on any machine. Everything the demo shows is committed: the
 finished film, the shots it was cut from, the memory library with its photographs and metadata,
-and the model-response cache — so the gallery is full, the sketch studio answers in under a
-second, and asking MUSE for a film about those photographs returns the one it already made.
+and the model-response cache — so the gallery is full and asking MUSE for a film about those
+photographs returns the one it already made.
 None of it needs a key, a network or a budget, and re-generating the same film costs nothing
 because every response it would ask for is already in `workspace/cache/`.
 
@@ -301,12 +351,6 @@ metadata a model can search, and the note you wrote yourself, which outranks any
 model inferred. Ask MUSE talks about the library and only the library: it is instructed
 never to invent a memory, and when it recognises a film already cut from exactly those
 photographs it returns the film rather than making another.
-
-**Draws, and binds.** The sketch studio puts a memory on an easel and draws it in one of
-four hands, with the likeness and the headcount pinned. The storybook writes a page per
-memory in plain words, illustrates it with those drawings, turns on real hinged leaves in
-3D, and exports as a PDF written by hand — no dependency, illustrations embedded
-losslessly.
 
 **Changes theme without changing the story.** Four presets. The same five photographs cut
 as loose gouache at 124 BPM and as cel-shaded neon anime at 152, each with its own score,
