@@ -24,7 +24,11 @@ import { config as loadEnv } from "./load-env";
 
 loadEnv();
 
+import fs from "node:fs";
+import path from "node:path";
+
 import { db } from "../src/lib/db/client";
+import { PATHS } from "../src/lib/core/paths";
 import { Projects } from "../src/lib/db/repo";
 import { purgeProjectAssets } from "../src/lib/services/assets";
 
@@ -33,9 +37,10 @@ const dry = argv.includes("--dry");
 const doRemove = argv.includes("--remove-unfinished");
 const doFreshen = argv.includes("--freshen");
 const doToday = argv.includes("--today");
+const doOnlyBundled = argv.includes("--only-bundled");
 
-if (!doRemove && !doFreshen && !doToday) {
-  console.error("  usage: --remove-unfinished | --freshen | --today  [--dry]");
+if (!doRemove && !doFreshen && !doToday && !doOnlyBundled) {
+  console.error("  usage: --remove-unfinished | --only-bundled | --freshen | --today  [--dry]");
   process.exit(1);
 }
 
@@ -103,6 +108,56 @@ if (doRemove) {
     tx();
     console.log(`      removed, ${files} file(s) deleted`);
   }
+}
+
+if (doOnlyBundled) {
+  /**
+   * Keep only the films this repository can actually play.
+   *
+   * The database was committed describing sixteen films while the bundle carried one. Every other
+   * row resolved to a reel and a poster that exist on the machine that made them and nowhere
+   * else, so a clone opened its gallery on fifteen dead entries — the exact impression the
+   * committed film is there to avoid.
+   *
+   * The bundle is the authority: if the media is not in it, the row is a promise the repository
+   * cannot keep.
+   */
+  const demo = path.join(PATHS.workspace, "demo");
+  const bundled = new Set<string>();
+  for (const dir of [demo, path.join(demo, "assets")]) {
+    if (fs.existsSync(dir)) for (const f of fs.readdirSync(dir)) bundled.add(f);
+  }
+
+  const projects = db().prepare(`SELECT id, title FROM projects`).all() as {
+    id: string;
+    title: string;
+  }[];
+  const newestReel = db().prepare(
+    `SELECT uri FROM assets WHERE project_id = ? AND type = 'reel' ORDER BY created_at DESC LIMIT 1`,
+  );
+
+  const unplayable = projects.filter((p) => {
+    const row = newestReel.get(p.id) as { uri: string } | undefined;
+    if (!row) return false; // handled by --remove-unfinished
+    return !bundled.has(path.basename(row.uri));
+  });
+
+  console.log(`  ${unplayable.length} film(s) the bundle cannot play:`);
+  for (const p of unplayable) {
+    console.log(`    ${p.id}  ${p.title}`);
+    if (dry) continue;
+    purgeProjectAssets(p.id);
+    const tx = db().transaction(() => {
+      for (const table of CHILDREN_FIRST) {
+        if (!columnsOf(table).has("project_id")) continue;
+        db().prepare(`DELETE FROM ${table} WHERE project_id = ?`).run(p.id);
+      }
+      Projects.delete(p.id);
+    });
+    tx();
+  }
+  const left = db().prepare(`SELECT COUNT(*) AS n FROM projects`).get() as { n: number };
+  console.log(`  ${left.n} project(s) remain`);
 }
 
 if (doFreshen) {

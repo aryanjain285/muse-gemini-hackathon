@@ -154,5 +154,31 @@ fs.writeFileSync(
   JSON.stringify({ projectId, reel: reel ? path.basename(reel.uri) : null }, null, 2),
 );
 
+/**
+ * Anything the committed database promises that this bundle cannot deliver.
+ *
+ * The database was committed describing sixteen films while the bundle carried one, so a clone
+ * opened its gallery on fifteen entries whose reel and poster existed only on the machine that
+ * made them. Nothing said so: the bundler reported success, the database was valid, and the gap
+ * was only visible as a page full of broken thumbnails on somebody else's laptop.
+ */
+const playable = new Set<string>();
+for (const dir of [demo, path.join(demo, "assets")]) {
+  if (fs.existsSync(dir)) for (const f of fs.readdirSync(dir)) playable.add(f);
+}
+const unplayable = Projects.list(200).filter((p) => {
+  const theirs = Assets.byRole(p.id, "final", "reel");
+  return theirs ? !playable.has(path.basename(theirs.uri)) : false;
+});
+
 console.log(`  bundled ${copied} files, ${(bytes / 1048576).toFixed(1)} MB -> workspace/demo/`);
+if (unplayable.length > 0) {
+  console.log(
+    `
+  WARNING: ${unplayable.length} film(s) in the database have no media in this bundle, so a` +
+      ` clone will show them broken:`,
+  );
+  for (const p of unplayable) console.log(`    ${p.id}  ${p.title}`);
+  console.log(`  run: npx tsx scripts/tidy-demo.ts --only-bundled`);
+}
 console.log(`  left behind ${skipped} superseded take(s) from earlier attempts`);
