@@ -197,8 +197,10 @@ export default function ConsolePanel({
                       <span className={cx("w-[3.2rem] shrink-0 py-1.5 uppercase tracking-wide", s.text)}>
                         {s.word}
                       </span>
-                      <span className="w-[6rem] shrink-0 py-1.5 text-paper-500">{line.channel}</span>
-                      <span className="w-[10rem] shrink-0 py-1.5 text-paper-200">{line.label}</span>
+                      {/* Hidden on a narrow panel: the channel is the least useful of the four columns, and 6rem of
+                          it was coming out of the message. */}
+                      <span className="hidden w-[6rem] shrink-0 py-1.5 text-paper-500 sm:block">{line.channel}</span>
+                      <span className="w-[7rem] shrink-0 truncate py-1.5 text-paper-200 lg:w-[10rem]">{line.label}</span>
                       <span className="min-w-0 flex-1 py-1.5 pr-3 break-words text-paper-400">
                         {line.detail}
                       </span>

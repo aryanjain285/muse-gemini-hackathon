@@ -487,7 +487,13 @@ export default function StudioClient({
         </section>
       ) : null}
 
-      <div className="mx-auto mt-8 grid w-[min(var(--measure-wide),100%-var(--gutter-page)*2)] grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_460px]">
+      {/* Two columns only when there is width for two.
+          
+          The breakpoint measures the viewport; the navigation rail has already taken part of it.
+          At `lg` — a 1024px window — that left the timeline 316 pixels beside a fixed 460 pixel
+          inspector, which is not a layout, it is a squeeze. `xl` with the rail collapsed gives the
+          timeline something like 750, and below that the two stack, which reads fine. */}
+      <div className="mx-auto mt-8 grid w-[min(var(--measure-wide),100%-var(--gutter-page)*2)] grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_440px]">
         <div className="flex min-w-0 flex-col gap-8">
           <SetupPanel
             project={project}

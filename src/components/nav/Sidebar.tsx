@@ -54,7 +54,14 @@ function isActive(pathname: string, d: Destination, search: string): boolean {
   return pathname === d.href;
 }
 
-export default function Sidebar() {
+export default function Sidebar({
+  collapsed = false,
+  onToggle,
+}: {
+  /** Icon-only rail, for pages that need the width more than the labels. */
+  collapsed?: boolean;
+  onToggle?: () => void;
+}) {
   const pathname = usePathname() ?? "/";
   const [open, setOpen] = useState(false);
   // usePathname does not carry the query, and two destinations differ only by it. Reading it
@@ -69,7 +76,13 @@ export default function Sidebar() {
           href={d.href}
           onClick={() => setOpen(false)}
           aria-current={active ? "page" : undefined}
-          className={`group flex items-center gap-3 rounded-core px-3 py-2.5 transition-colors duration-200 ${
+          // The label is the accessible name when it is visible; when it is not, the title and
+          // aria-label carry it, so a collapsed rail is still navigable by screen reader.
+          title={collapsed ? `${d.label} — ${d.hint}` : undefined}
+          aria-label={collapsed ? d.label : undefined}
+          className={`group flex items-center rounded-core py-2.5 transition-colors duration-200 ${
+            collapsed ? "justify-center px-2" : "gap-3 px-3"
+          } ${
             active
               ? "bg-ink-850 text-paper-50"
               : "text-paper-400 hover:bg-ink-900 hover:text-paper-100"
@@ -84,12 +97,14 @@ export default function Sidebar() {
           >
             <Icon name={d.icon} size={13} />
           </span>
-          <span className="min-w-0">
-            <span className="block truncate font-sans text-[13px] leading-tight">{d.label}</span>
-            <span className="block truncate font-mono text-[10px] leading-tight text-paper-600">
-              {d.hint}
+          {collapsed ? null : (
+            <span className="min-w-0">
+              <span className="block truncate font-sans text-[13px] leading-tight">{d.label}</span>
+              <span className="block truncate font-mono text-[10px] leading-tight text-paper-600">
+                {d.hint}
+              </span>
             </span>
-          </span>
+          )}
         </Link>
       </li>
     );
@@ -121,21 +136,44 @@ export default function Sidebar() {
       {/* ── desktop: a fixed rail ─────────────────────────────────────────────── */}
       <nav
         aria-label="Main"
-        className="fixed left-0 top-0 z-40 hidden h-[100dvh] w-[15.5rem] flex-col border-r border-hairline bg-ink-1000/70 px-4 py-6 backdrop-blur md:flex"
+        className={`fixed left-0 top-0 z-40 hidden h-[100dvh] flex-col border-r border-hairline bg-ink-1000/70 py-6 backdrop-blur transition-[width] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] md:flex ${
+          collapsed ? "w-[4.5rem] px-2" : "w-[15.5rem] px-4"
+        }`}
       >
         <Link
           href="/"
           aria-label="MUSE home"
-          className="mb-8 block px-2 text-paper-200 transition-colors hover:text-paper-50"
+          className={`mb-8 block text-paper-200 transition-colors hover:text-paper-50 ${
+            collapsed ? "self-center" : "px-2"
+          }`}
         >
-          <Logo size={22} wordSize={13} />
+          <Logo size={22} wordSize={13} markOnly={collapsed} />
         </Link>
 
         <ul className="flex list-none flex-col gap-1">{links}</ul>
 
-        <p className="mt-auto px-3 font-mono text-[10px] leading-relaxed text-paper-700">
-          Nobody remembers in stills.
-        </p>
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-label={collapsed ? "Expand the navigation" : "Collapse the navigation"}
+          title={collapsed ? "Expand" : "Collapse"}
+          className={`mt-auto flex items-center rounded-core py-2 text-paper-500 transition-colors duration-200 hover:bg-ink-900 hover:text-paper-200 ${
+            collapsed ? "justify-center px-2" : "gap-2 px-3"
+          }`}
+        >
+          <span
+            className={`inline-block transition-transform duration-300 ${collapsed ? "" : "rotate-180"}`}
+          >
+            <Icon name="chevron" size={13} />
+          </span>
+          {collapsed ? null : <span className="font-mono text-[10px]">Collapse</span>}
+        </button>
+
+        {collapsed ? null : (
+          <p className="mt-3 px-3 font-mono text-[10px] leading-relaxed text-paper-700">
+            Nobody remembers in stills.
+          </p>
+        )}
       </nav>
     </>
   );
