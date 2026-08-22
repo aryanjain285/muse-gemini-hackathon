@@ -147,11 +147,14 @@ for (const asset of Assets.byProject(projectId)) {
 let others = 0;
 for (const project of Projects.list(200)) {
   if (project.id === projectId) continue;
+  // Every reel and poster row, not only the one the gallery resolves. A project keeps alternate
+  // cuts under roles like `edit_dissolves`, and those rows point at real files: bundling only
+  // `final` left three of them referring to videos that exist on this machine alone.
   for (const type of ["reel", "poster"] as const) {
-    const asset = Assets.byRole(project.id, "final", type);
-    if (!asset) continue;
-    take(relativeOf(asset.uri));
-    others++;
+    for (const asset of Assets.byProject(project.id, type)) {
+      take(relativeOf(asset.uri));
+      others++;
+    }
   }
 }
 console.log(`  ${others} file(s) from ${Projects.list(200).length - 1} other film(s)`);

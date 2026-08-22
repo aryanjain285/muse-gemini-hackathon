@@ -114,6 +114,36 @@ async function main(): Promise<void> {
     });
   }
 
+  // ── one reel and one poster per role, the newest ──────────────────────────
+  //
+  // A film re-cut five times keeps five reel rows and five poster rows. Only the newest is ever
+  // resolved, and bundling the rest would mean committing a quarter of a gigabyte of superseded
+  // video to satisfy rows nothing reads. The older ones are dropped so the database promises
+  // exactly what the bundle carries — the files stay on disk, they are simply no longer claimed.
+  let stale = 0;
+  for (const project of Projects.list(200)) {
+    for (const type of ["reel", "poster"] as const) {
+      const rows = Assets.byProject(project.id, type);
+      const newestByRole = new Map<string, string>();
+      for (const row of rows) newestByRole.set(row.role ?? "", row.id); // byProject is oldest-first
+      for (const row of rows) {
+        if (newestByRole.get(row.role ?? "") === row.id) continue;
+        stale++;
+        if (dry) continue;
+        const tx = db().transaction(() => {
+          for (const table of ["renders", "scene_jobs", "music_jobs"] as const) {
+            if (!columnsOf(table).has("output_asset_id")) continue;
+            db().prepare(`UPDATE ${table} SET output_asset_id = NULL WHERE output_asset_id = ?`).run(row.id);
+          }
+          db().prepare(`DELETE FROM qc_results WHERE asset_id = ?`).run(row.id);
+          db().prepare(`DELETE FROM assets WHERE id = ?`).run(row.id);
+        });
+        tx();
+      }
+    }
+  }
+  console.log(`  dropped ${stale} superseded reel/poster row(s)`);
+
   // ── nothing may point at a file that is not there ─────────────────────────
   let dropped = 0;
   for (const project of Projects.list(200)) {
