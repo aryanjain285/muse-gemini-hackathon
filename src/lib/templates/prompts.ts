@@ -1150,3 +1150,103 @@ export function caricaturePrompt(input: {
     "It is a drawing on paper, not a photograph and not a photograph of a drawing.",
   ].join(" ");
 }
+
+// ── storybook ────────────────────────────────────────────────────────────────
+
+export const STORYBOOK_SCHEMA = {
+  type: "OBJECT",
+  required: ["title", "dedication", "pages"],
+  propertyOrdering: ["title", "dedication", "pages"],
+  properties: {
+    title: { type: "STRING", description: "Four words at most. No subtitle, no colon." },
+    dedication: {
+      type: "STRING",
+      description: "One line for the inside cover, as a person would write it by hand.",
+    },
+    pages: {
+      type: "ARRAY",
+      minItems: 3,
+      maxItems: 8,
+      items: {
+        type: "OBJECT",
+        required: ["memory_id", "heading", "text"],
+        propertyOrdering: ["memory_id", "heading", "text"],
+        properties: {
+          memory_id: { type: "STRING", description: "The id of the memory this page is about." },
+          heading: { type: "STRING", description: "Three or four words. Not a sentence." },
+          text: {
+            type: "STRING",
+            description: "Two or three sentences of prose for this page. No more.",
+          },
+        },
+      },
+    },
+  },
+} as const;
+
+/**
+ * Turn a set of memories into the pages of a storybook.
+ *
+ * Prose, not captions. A caption describes a photograph and a page tells you what it was like to
+ * be there, so the instruction is about voice before it is about structure — and the owner's own
+ * note is the truest sentence available, which is why it is handed over verbatim and why the model
+ * is told to build on it rather than replace it.
+ *
+ * Ordering is the other half. Photographs arrive in whatever order they were taken; a book needs
+ * an arrival, a middle and a last page, so the model is asked to sequence them and told what the
+ * last page is for.
+ */
+export function storybookPrompt(input: {
+  request: string;
+  memories: {
+    id: string;
+    title: string;
+    description: string;
+    note: string;
+    event: string | null;
+    location: string | null;
+    people: number;
+    mood: string[];
+  }[];
+}): { system: string; user: string; schema: unknown } {
+  const system = [
+    "You write short storybooks from somebody's own photographs. You are writing for the person in them, and for whoever they hand the book to.",
+    "",
+    "Voice:",
+    "- Prose, never captions. A caption says what is in the picture; a page says what it was like to be there.",
+    "- Plain words. No 'embark', no 'tapestry', no 'testament to'. Nothing a person would not say out loud.",
+    "- Present tense, and close in. Two or three sentences a page, and stop.",
+    "- Their note about a photograph is the truest thing you have. Build on it; never contradict it.",
+    "",
+    "Structure:",
+    "- Order the pages so the book arrives somewhere, rather than following the order the photographs came in.",
+    "- One memory per page. Never invent a memory, a person, or a detail that is not in what you were given.",
+    "- The last page is a closing, not a summary: leave the reader in the moment, not above it.",
+    "- The title is four words at most and is not a description of a trip.",
+  ].join("\n");
+
+  const lines = input.memories.map((m) => {
+    const where = [m.event, m.location].filter(Boolean).join(", ");
+    return [
+      `id: ${m.id}`,
+      `  what it shows: ${limit(m.description, 200)}`,
+      where ? `  where: ${where}` : "",
+      m.people > 0 ? `  people in it: ${m.people}` : "  no people in it",
+      m.mood.length ? `  feels: ${m.mood.slice(0, 3).join(", ")}` : "",
+      m.note ? `  THEIR OWN NOTE: "${limit(m.note, 200)}"` : "",
+    ]
+      .filter(Boolean)
+      .join("\n");
+  });
+
+  const user = [
+    input.request ? `They asked for: ${limit(input.request, 200)}` : "They asked for a book of these memories.",
+    "",
+    `${input.memories.length} memories, each with an id you must use verbatim:`,
+    lines.join("\n\n"),
+    "",
+    "Write the book.",
+  ].join("\n");
+
+  return { system, user, schema: STORYBOOK_SCHEMA };
+}

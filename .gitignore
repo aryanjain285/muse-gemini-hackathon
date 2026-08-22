@@ -53,6 +53,11 @@ workspace/*
 # library and no way to fill one without a key.
 !workspace/memories/
 
+# The written storybook. A few kilobytes of prose, and the page reads it server-side so the
+# cover is on the first paint — without it the book has to be written again before it can be
+# opened, which is the one thing a demo cannot wait for.
+!workspace/storybook.json
+
 # Never: scratch space, logs, and the uploads of whoever ran it.
 workspace/tmp/
 workspace/logs/

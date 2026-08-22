@@ -38,6 +38,7 @@ const DESTINATIONS: Destination[] = [
     prefix: "/gallery",
   },
   { href: "/sketch", label: "Sketch studio", icon: "scissors", hint: "Draw a memory", prefix: "/sketch" },
+  { href: "/storybook", label: "Storybook", icon: "frame", hint: "Turn the pages", prefix: "/storybook" },
   { href: "/gallery?view=films", label: "Films", icon: "film", hint: "Everything made" },
 ];
 

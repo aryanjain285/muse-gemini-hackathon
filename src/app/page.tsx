@@ -48,6 +48,7 @@ export default async function Home() {
             ["/ask", "Ask MUSE"],
             ["/gallery", "Gallery"],
             ["/sketch", "Sketch"],
+            ["/storybook", "Storybook"],
           ].map(([href, label]) => (
             <Link
               key={href}
