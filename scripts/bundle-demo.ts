@@ -35,19 +35,40 @@ if (!project) {
 
 const demo = path.join(PATHS.workspace, "demo");
 fs.rmSync(demo, { recursive: true, force: true });
-fs.mkdirSync(path.join(demo, "assets"), { recursive: true });
+fs.mkdirSync(path.join(demo, "files"), { recursive: true });
 
 let copied = 0;
 let bytes = 0;
 
-function take(from: string, into: string): void {
+/**
+ * Copy one file into the bundle under the same path it has in the workspace.
+ *
+ * The bundle used to be flat — every file by its basename in one directory — which works only
+ * while basenames are unique. They are not: every project writes `poster-v1.jpg`, so fifteen
+ * films contributed fifteen files with one name. Fourteen were silently skipped, and a restore
+ * would have placed whichever survived into every project's directory, showing one film's poster
+ * on another film's card. Mirroring the workspace layout makes the collision impossible and the
+ * restore a plain copy.
+ */
+function take(relative: string): void {
+  const from = path.join(PATHS.workspace, relative);
   if (!fs.existsSync(from)) {
-    console.log(`  missing, skipped: ${path.basename(from)}`);
+    console.log(`  missing, skipped: ${relative}`);
     return;
   }
+  const into = path.join(demo, "files", relative);
+  if (fs.existsSync(into)) return;
+  fs.mkdirSync(path.dirname(into), { recursive: true });
   fs.copyFileSync(from, into);
   copied++;
   bytes += fs.statSync(into).size;
+}
+
+/** Asset uris are absolute on the way out of the repository; the bundle wants them relative. */
+function relativeOf(uri: string): string {
+  const abs = path.resolve(uri);
+  const rel = path.relative(PATHS.workspace, abs);
+  return rel.split(path.sep).join("/");
 }
 
 // What the committed film needs, and not one file more.
@@ -115,11 +136,31 @@ for (const asset of Assets.byProject(projectId)) {
     skipped++;
     continue;
   }
-  take(asset.uri, path.join(demo, "assets", path.basename(asset.uri)));
+  take(relativeOf(asset.uri));
 }
 
+// Every other film's reel and poster, so the gallery is a gallery on somebody else's machine.
+//
+// The featured film brings its whole shot set because the studio page opens it. The rest need
+// only what the gallery shows — a poster to look at and a reel to play — which is the difference
+// between 320 MB of committed video and 3 GB of it.
+let others = 0;
+for (const project of Projects.list(200)) {
+  if (project.id === projectId) continue;
+  for (const type of ["reel", "poster"] as const) {
+    const asset = Assets.byRole(project.id, "final", type);
+    if (!asset) continue;
+    take(relativeOf(asset.uri));
+    others++;
+  }
+}
+console.log(`  ${others} file(s) from ${Projects.list(200).length - 1} other film(s)`);
+
 // The reel itself sits at the top level, where a person looking in the directory finds it.
-if (reel) take(reel.uri, path.join(demo, path.basename(reel.uri)));
+if (reel) {
+  // Also at the top level, where somebody browsing the directory finds the film itself.
+  fs.copyFileSync(reel.uri, path.join(demo, path.basename(reel.uri)));
+}
 
 // What it was cut from, in a form a person can read without the app running.
 fs.writeFileSync(
@@ -163,9 +204,14 @@ fs.writeFileSync(
  * was only visible as a page full of broken thumbnails on somebody else's laptop.
  */
 const playable = new Set<string>();
-for (const dir of [demo, path.join(demo, "assets")]) {
-  if (fs.existsSync(dir)) for (const f of fs.readdirSync(dir)) playable.add(f);
-}
+const walk = (dir: string): void => {
+  if (!fs.existsSync(dir)) return;
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (entry.isDirectory()) walk(path.join(dir, entry.name));
+    else playable.add(entry.name);
+  }
+};
+walk(demo);
 const unplayable = Projects.list(200).filter((p) => {
   const theirs = Assets.byRole(p.id, "final", "reel");
   return theirs ? !playable.has(path.basename(theirs.uri)) : false;

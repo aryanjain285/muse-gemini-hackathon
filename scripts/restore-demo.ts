@@ -1,10 +1,16 @@
 /**
- * Put the committed demo film back where the database expects it.
+ * Put the committed media back where the database expects it.
  *
  * A fresh clone has `workspace/demo/` and `workspace/muse.db` but no `workspace/assets/` or
- * `workspace/renders/` — those are ignored, because they hold every attempt ever made. This
- * copies the bundle into the two locations the asset rows point at, so the gallery, the
- * studio and the re-cut all work on a machine that has never generated anything.
+ * `workspace/renders/` — those are ignored, because they hold every attempt ever made. This copies
+ * the bundle into the places the asset rows point at, so the gallery, the studio and a re-cut all
+ * work on a machine that has never generated anything.
+ *
+ * The bundle mirrors the workspace layout, so restoring is a plain recursive copy. It used to be
+ * flat — one directory of files addressed by basename — which works only while basenames are
+ * unique, and they are not: every project writes `poster-v1.jpg`. Fifteen films contributed fifteen
+ * files with one name, fourteen were dropped on the way in, and whichever survived would have been
+ * restored into every project's directory, putting one film's poster on another film's card.
  *
  * Idempotent: a file already in place is left alone.
  *
@@ -34,57 +40,50 @@ if (!fs.existsSync(manifest)) {
 const { projectId } = JSON.parse(fs.readFileSync(manifest, "utf8")) as { projectId: string };
 ensureDirs();
 
-const project = Projects.get(projectId);
-if (!project) {
+if (!Projects.get(projectId)) {
   console.error(`  the database has no project ${projectId}; is workspace/muse.db committed?`);
   process.exit(1);
 }
 
 let placed = 0;
 let already = 0;
-let missing = 0;
-let superseded = 0;
 
-/** Copy one bundled file to wherever its asset row says it belongs. */
-function place(from: string, to: string): void {
-  if (!fs.existsSync(from)) {
-    missing++;
-    console.log(`  not in the bundle: ${path.basename(from)}`);
-    return;
+/** Copy the mirrored tree into the workspace, keeping every path exactly as it was. */
+function place(fromDir: string, relative = ""): void {
+  for (const entry of fs.readdirSync(fromDir, { withFileTypes: true })) {
+    const from = path.join(fromDir, entry.name);
+    const rel = relative ? `${relative}/${entry.name}` : entry.name;
+    if (entry.isDirectory()) {
+      place(from, rel);
+      continue;
+    }
+    const to = path.join(PATHS.workspace, rel);
+    if (fs.existsSync(to)) {
+      already++;
+      continue;
+    }
+    fs.mkdirSync(path.dirname(to), { recursive: true });
+    fs.copyFileSync(from, to);
+    placed++;
   }
-  if (fs.existsSync(to)) {
-    already++;
-    return;
-  }
-  fs.mkdirSync(path.dirname(to), { recursive: true });
-  fs.copyFileSync(from, to);
-  placed++;
 }
 
-// Asset rows resolve to absolute paths under this workspace, so the destination is whatever
-// this machine's layout says rather than whatever the machine that made the film said.
-//
-// The bundle holds one film, not every take the project ever produced, so a row with no
-// bundled file is the normal case rather than a fault — only the reel and the files the kept
-// edit references have to be there. The reel is skipped in this loop because the bundle keeps
-// it at the top level, and counting it here reported a phantom missing file on every restore.
-const reel = Assets.byRole(projectId, "final", "reel");
-for (const asset of Assets.byProject(projectId)) {
-  if (reel && asset.id === reel.id) continue;
-  const from = path.join(demo, "assets", path.basename(asset.uri));
-  if (!fs.existsSync(from)) {
-    superseded++;
-    continue;
-  }
-  place(from, asset.uri);
+const files = path.join(demo, "files");
+if (!fs.existsSync(files)) {
+  console.error("  workspace/demo/files/ is missing; re-run scripts/bundle-demo.ts");
+  process.exit(1);
 }
+place(files);
 
-if (reel) place(path.join(demo, path.basename(reel.uri)), reel.uri);
+console.log(`  placed ${placed}, already there ${already}`);
 
-console.log(`  placed ${placed}, already there ${already}, missing ${missing}`);
-if (superseded > 0) {
-  console.log(`  ${superseded} superseded take(s) are not in the bundle, which is expected`);
-}
-if (placed > 0 || already > 0) {
-  console.log(`  open http://localhost:3939/studio/${projectId} after npm run dev`);
-}
+// What the gallery will and will not be able to show, stated plainly here rather than discovered
+// later as a page of broken thumbnails on somebody else's laptop.
+const films = Projects.list(200);
+const broken = films.filter((p) => {
+  const reel = Assets.byRole(p.id, "final", "reel");
+  return !reel || !fs.existsSync(reel.uri);
+});
+console.log(`  ${films.length - broken.length}/${films.length} film(s) can play`);
+for (const p of broken) console.log(`    cannot play: ${p.id}  ${p.title}`);
+console.log(`  open http://localhost:3939/studio/${projectId} after npm run dev`);

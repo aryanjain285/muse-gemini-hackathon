@@ -109,9 +109,13 @@ second, and asking MUSE for a film about those photographs returns the one it al
 None of it needs a key, a network or a budget, and re-generating the same film costs nothing
 because every response it would ask for is already in `workspace/cache/`.
 
-Verified by cloning this repository to an empty directory and booting it: 507 committed files
-under `workspace/`, all six pages answering, the reel streaming, and the ledger unchanged
-afterwards — nothing was spent to show any of it.
+Sixteen finished films travel with the repository — every one of their reels and posters is
+committed, and the featured film brings its whole shot set so the studio page opens. That is about
+350 MB of video, which makes the clone large and the demo complete; the alternative was a gallery
+of broken thumbnails on any machine but the one that made them.
+
+Verified by cloning to an empty directory and booting it: all six pages answering, every film
+playing, and the ledger unchanged afterwards — nothing was spent to show any of it.
 
 To make your own:
 
