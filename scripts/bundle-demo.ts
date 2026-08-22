@@ -158,7 +158,11 @@ console.log(`  ${others} file(s) from ${Projects.list(200).length - 1} other fil
 
 // The reel itself sits at the top level, where a person looking in the directory finds it.
 if (reel) {
-  // Also at the top level, where somebody browsing the directory finds the film itself.
+  // In the mirrored tree like everything else, because that tree is what restore copies — the
+  // featured film was excluded from the asset loop to keep it from landing twice, and then only
+  // placed at the top level, so a clone restored fifteen films and not the one it opens on.
+  take(relativeOf(reel.uri));
+  // And at the top level as well, where somebody browsing the directory finds the film itself.
   fs.copyFileSync(reel.uri, path.join(demo, path.basename(reel.uri)));
 }
 
