@@ -98,9 +98,15 @@ The UI shows the estimate *before* you commit and a live spend meter after. See
 
 ```bash
 npm install
-npm run setup                     # put the committed film and memories where the app expects them
+npm run setup                     # put the committed films and memories where the app expects them
 npm run dev                       # http://localhost:3939
 ```
+
+After a `git pull`, run `npm run sync` instead of `setup`. The database is both committed and
+written to by the running app, so git will not overwrite your copy and the new films never arrive —
+sixteen where the repository says seventeen, with nothing on screen to explain it. `sync` resets the
+committed data files to the current commit, removes the write-ahead log that belonged to the
+database it replaced, and restores the media. Stop `npm run dev` first.
 
 That is the whole first run, on any machine. Everything the demo shows is committed: the
 finished film, the shots it was cut from, the memory library with its photographs and metadata,
