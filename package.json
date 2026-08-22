@@ -20,6 +20,7 @@
     "smoke:real": "tsx scripts/smoke-real.ts",
     "doctor": "tsx scripts/doctor.ts",
     "setup": "tsx scripts/restore-demo.ts && tsx scripts/seed-memories.ts",
+    "sync": "tsx scripts/sync.ts",
     "demo:restore": "tsx scripts/restore-demo.ts",
     "demo:seed": "tsx scripts/seed-memories.ts",
     "demo:bundle": "tsx scripts/bundle-demo.ts",
