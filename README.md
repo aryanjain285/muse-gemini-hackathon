@@ -4,27 +4,91 @@
 
 # MUSE
 
-**AI Music Video Director**
+### Nobody remembers in stills.
 
-Five photos and one sentence become a 30-second vertical film, with a score composed
-around its story and every cut landed on the music.
+Hand MUSE the photographs you already have. It casts the faces, writes the story,
+composes a score for it, and lands every cut on the beat.
 
-`Gemini 3.6 Flash` · `Nano Banana 2` · `Lyria 3` · `Veo 3.1` · `FFmpeg`
+`Gemini 3.6 Flash` · `Gemini 3.1 Flash Image` · `Lyria 3` · `Veo 3.1` · `FFmpeg`
 
 </div>
 
 ---
 
-Most generative video tools expose the model: write a prompt, wait, receive a clip.
-Consistency, pacing and musical synchronisation are then fragile, because nothing in
-the system holds a view of the film as a whole.
+## Two films from the same five photographs
 
-MUSE inverts that. Gemini writes one **timestamped plan** governing narrative, music,
-imagery, motion and editing. Music and visuals generate **concurrently from that same
-plan**, a multimodal critic scores every shot, and a **deterministic composer**
-assembles the reel.
+One winter trip. Five phone photographs. Nothing changed between these but the theme —
+same faces, same mountain, same story, and nothing about one reads like the other.
 
-## The idea
+| | **Gangtok Pink Dawn** | **Pink Dawn Over Gangtok** |
+|---|---|---|
+| look | loose gouache, visible brush strokes | cel-shaded anime, hard ink outlines, speed lines |
+| palette | warm rose, cold valley blue | saturated magenta, electric cyan, indigo ground |
+| score | 124 BPM, written for it | 152 BPM, distorted saw lead and gated drums |
+| shots | 7, three with generated motion | 6, four with generated motion |
+| cuts | 6, landed on measured onsets | 5, landed on measured onsets |
+| master | −1.2 dBFS, no clipping | −1.1 dBFS, no clipping |
+
+Both are committed. `npm run setup && npm run dev` and they play — no key, no network,
+no budget.
+
+## Every modality, on the same plan
+
+This is not one model behind a prompt box. It is four, coordinated by a document.
+
+| | model | what it actually does |
+|---|---|---|
+| **see** | Gemini 3.6 Flash | reads the photographs — who is in them, what must not drift between shots, how many faces are in frame |
+| **think** | Gemini 3.6 Flash | writes one timestamped plan: shots, shot sizes, camera, transitions, musical events |
+| **draw** | Gemini 3.1 Flash Image | keyframes for every shot, and the sketch studio's caricatures |
+| **hear** | Lyria 3 | an original score composed for *this* plan, not a library track |
+| **move** | Veo 3.1 | animates the approved keyframe, never a bare prompt |
+| **judge** | Gemini 3.6 Flash | scores every finished shot against the photographs it came from |
+| **talk** | Gemini 3.6 Flash | Ask MUSE, grounded so it cannot invent a memory you do not have |
+| **write** | Gemini 3.6 Flash | storybook prose, built on your own notes |
+
+Text in, images in, images out, audio out, video out, and structured JSON at every
+boundary so the pieces can be checked rather than hoped about.
+
+## What you can do with it
+
+**A memory library.** Photographs with metadata a model can search — who, where, the mood,
+and the note you wrote yourself. That note is treated as the truest sentence available and
+is quoted back to you.
+
+**Ask MUSE.** A conversation about your own photographs. Grounded on the records, and
+instructed never to invent one: asked for beach photographs of a mountain trip, it names
+the five mountain ones instead of inventing a beach. When it recognises a film it has
+already cut from exactly those photographs, it hands you the film instead of making
+another.
+
+**The film pipeline.** Vision → director → score → keyframes → motion → quality control →
+compose. Four presets, five render modes, four edit styles, and a screening room where
+MUSE watches the film it just made and says what it would change.
+
+**The sketch studio.** The same image model draws one of your photographs by hand —
+caricature, pencil, ink or watercolour — on an easel under a light, with the likeness and
+the headcount pinned so a family of three comes back as three.
+
+**The storybook.** A page per memory, written in plain words and illustrated by the
+drawings. It turns — real leaves hinged on a spine in 3D, arrow keys, click zones, drag —
+and exports as a **PDF written by hand**, embedding the illustrations losslessly.
+
+## The part I would show a judge
+
+Quality control is not a rubber stamp. The critic is sent the original photographs and
+counts the people in frame; a wrong face or an invented figure caps its identity score
+below the pass mark and spends the retry budget on the defect.
+
+It earned that on this film. The hero shot came back from Veo as a wide landscape with the
+family reduced to three anonymous specks. The critic scored it **0.3 on identity** and
+asked for them to be visible. The pipeline dropped the take and shipped the still that
+shows their faces.
+
+**Motion is worth less than the film being about the right people.** That is a judgement
+the system makes on its own, and it is the difference between a demo and a product.
+
+## Models propose, code decides
 
 A generative music model treats requested timestamps as *intent*, not instruction.
 
@@ -83,7 +147,7 @@ every response is **cached by request hash**, so an identical re-run costs **$0.
 | `wiring` | director, vision, critic, patch | $0.099 | **$0.024** | ~2 min |
 | `standard` | + keyframes + Lyria score | $0.422 | **$0.393** | ~9 min |
 | `hero` | + one Veo hero shot | $0.722 | | |
-| `max` | Nano Banana Pro + Veo Fast 1080p | $1.971 | | |
+| `max` | Gemini 3 Pro Image + Veo Fast 1080p | $1.971 | | |
 
 A first `standard` run takes about nine minutes, most of it waiting on seven real
 keyframes. Re-running the same project is instant and free, which is why the demo
@@ -232,6 +296,22 @@ function-calling loop, and a deterministic local walk. The console shows the sam
 stream of tool calls either way, so adding a key changes who is deciding rather than
 what is possible. Bounded by turns, tool calls and spend.
 
+**Remembers, and can be asked about it.** A local memory library — photographs with
+metadata a model can search, and the note you wrote yourself, which outranks anything the
+model inferred. Ask MUSE talks about the library and only the library: it is instructed
+never to invent a memory, and when it recognises a film already cut from exactly those
+photographs it returns the film rather than making another.
+
+**Draws, and binds.** The sketch studio puts a memory on an easel and draws it in one of
+four hands, with the likeness and the headcount pinned. The storybook writes a page per
+memory in plain words, illustrates it with those drawings, turns on real hinged leaves in
+3D, and exports as a PDF written by hand — no dependency, illustrations embedded
+losslessly.
+
+**Changes theme without changing the story.** Four presets. The same five photographs cut
+as loose gouache at 124 BPM and as cel-shaded neon anime at 152, each with its own score,
+palette and camera grammar, and the same faces in both.
+
 ---
 
 ## Architecture
@@ -291,7 +371,17 @@ measurements behind each claim
 
 ## Verified, not asserted
 
-`npx tsx scripts/verify-e2e.ts` drives a real project and then measures the file:
+Three end-to-end drivers, each running a real project and then measuring the file it
+produced. All of them run against the deterministic engine, so they cost nothing:
+
+```
+npm run verify         39/39   the pipeline, with a generated score
+npm run verify:agent   39/39   the agent plans, renders, composes and inspects its own reel
+npm run verify:track   42/42   a film cut against a supplied mp3
+```
+
+Plus **502 unit tests** across 19 files, and `npm run doctor` for the machine. The pipeline
+driver measures the file rather than trusting the run:
 
 ```
 [  ok  ] scene count in band            7 scenes (5-7)
