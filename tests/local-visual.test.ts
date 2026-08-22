@@ -322,10 +322,19 @@ describe("buildSubjectSheet", () => {
     expect(stdev(lumaSeries(signature(out, 64)))).toBeGreaterThan(15);
   });
 
-  it("refuses more uploads than the product allows", async () => {
-    await expect(
-      buildSubjectSheet({ sourcePaths: new Array(6).fill(REFERENCE), outPath: path.join(OUT, "nope.png") }),
-    ).rejects.toThrow(/at most/i);
+  it("lays out a larger set by choosing, rather than refusing it", async () => {
+    // This used to throw above five uploads, which was the product's old cap leaking into a
+    // component whose whole job is ranking photographs and picking the best of them. Somebody
+    // bringing nine pictures is not an error; the sheet takes the ones worth anchoring identity to.
+    const sheet = await buildSubjectSheet({
+      sourcePaths: new Array(9).fill(REFERENCE),
+      outPath: path.join(OUT, "many.png"),
+      seed: 4,
+    });
+    expect(fs.existsSync(sheet.path)).toBe(true);
+    expect(sheet.tiles).toBeGreaterThan(0);
+    // Bounded on its own terms: a sheet of nine tiles is a collage, not a reference.
+    expect(sheet.tiles).toBeLessThanOrEqual(6);
   });
 });
 

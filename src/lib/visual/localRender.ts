@@ -312,6 +312,9 @@ export async function stylizeStill(opts: {
 const TILE_W = 448;
 const TILE_H = 560;
 const SHEET_GUTTER = 16;
+/** Past this the sheet reads as a collage rather than as one subject's reference. */
+const SHEET_MAX_TILES = 6;
+
 const SHEET_MARGIN = 24;
 const SHEET_HEADER = 72;
 
@@ -338,9 +341,14 @@ export async function buildSubjectSheet(opts: {
   // eleven pictures was the cap leaking into a component that already knew how to choose.
 
   const probes = await pool(sources, 3, (p) => probeImage(p));
+  // Ranked, then bounded. The sheet exists to establish one identity, and past half a dozen tiles
+  // it stops being a reference and becomes a collage — so the best few are laid out and the rest
+  // are left off. This replaces a hard refusal above five uploads: choosing is what this function
+  // is for, and refusing was it declining to do its job.
   const ranked = sources
     .map((p, i) => ({ path: p, probe: probes[i], score: subjectScore(probes[i]) }))
-    .sort((a, b) => b.score - a.score || (a.path < b.path ? -1 : 1));
+    .sort((a, b) => b.score - a.score || (a.path < b.path ? -1 : 1))
+    .slice(0, SHEET_MAX_TILES);
 
   const cols = sheetColumns(ranked.length);
   const rows = Math.ceil(ranked.length / cols);
